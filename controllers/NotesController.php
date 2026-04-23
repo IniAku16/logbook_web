@@ -10,27 +10,21 @@ class NotesController {
 
     public function index() {
         $notes = $this->model->getAllNotes();
+        $areas = $this->model->getAreas(); 
         include __DIR__ . "/../views/notes/index.php"; 
     }
 
     public function create() {
-        $areas = $this->model->getAreas();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->model->create($_POST['date'], $_POST['description'], $_POST['id_area'], $_POST['jenis'], $_POST['target'], $_POST['material']);
             header("Location: index.php");
-        } else {
-            include __DIR__ . "/../views/notes/index.php";
         }
     }
 
     public function update($id) {
-        $areas = $this->model->getAreas();
-        $note = $this->model->getById($id);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->model->update($id, $_POST['date'], $_POST['description'], $_POST['id_area'], $_POST['jenis'], $_POST['target'], $_POST['material']);
             header("Location: index.php");
-        } else {
-            include __DIR__ . "/../views/notes/index.php";
         }
     }
 
