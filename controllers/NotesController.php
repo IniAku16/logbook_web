@@ -19,7 +19,7 @@ class NotesController {
             $this->model->create($_POST['date'], $_POST['description'], $_POST['id_area'], $_POST['jenis'], $_POST['target'], $_POST['material']);
             header("Location: index.php");
         } else {
-            include __DIR__ . "/../views/notes/create.php";
+            include __DIR__ . "/../views/notes/index.php";
         }
     }
 
@@ -30,7 +30,7 @@ class NotesController {
             $this->model->update($id, $_POST['date'], $_POST['description'], $_POST['id_area'], $_POST['jenis'], $_POST['target'], $_POST['material']);
             header("Location: index.php");
         } else {
-            include __DIR__ . "/../views/notes/edit.php";
+            include __DIR__ . "/../views/notes/index.php";
         }
     }
 
