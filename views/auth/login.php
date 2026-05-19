@@ -216,9 +216,12 @@ if (empty($_SESSION['csrf_token'])) {
             <?php unset($_SESSION['success_msg']); ?>
         <?php endif; ?>
 
-        <form action="../../public/index.php" method="POST" class="text-start">
-
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <?php
+            $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERVER['SCRIPT_NAME']);
+        ?>
+        <form action="<?= htmlspecialchars($frontController) ?>" method="POST" class="text-start">
+            <input type="hidden" name="form" value="login">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
             <div class="mb-3">
                 <label class="form-label">Username / Email</label>
@@ -240,7 +243,7 @@ if (empty($_SESSION['csrf_token'])) {
 
         <div class="footer-section">
             <p class="footer-text mt-2">
-                <a href="forget_password.php" class="link-pastel">Forgot Password?</a>
+                <a href="<?= htmlspecialchars($frontController . '?page=forgot_password') ?>" class="link-pastel">Forgot Password?</a>
             </p>
         </div>
     </div>

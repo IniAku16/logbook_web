@@ -7,15 +7,15 @@ class NoteModel {
     }
 
     public function getAllNotes() {
-        $sql = "SELECT notes.*, tb_area.nama_area 
-                FROM notes 
-                LEFT JOIN tb_area ON notes.id_area = tb_area.id_area 
-                ORDER BY notes.date DESC";
+        $sql = "SELECT `notes`.*, tb_area.nama_area 
+                FROM `notes` 
+                LEFT JOIN tb_area ON `notes`.id_area = tb_area.id_area 
+                ORDER BY `notes`.date DESC";
         return mysqli_query($this->db, $sql);
     }
 
     public function getAreas() {
-        return mysqli_query($this->db, "SELECT * FROM tb_area");
+        return mysqli_query($this->db, "SELECT * FROM `tb_area`");
     }
 
     public function getById($id) {

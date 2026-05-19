@@ -1,5 +1,7 @@
 <?php
 $activePage = 'admin';
+$users = $users ?? [];
+
 if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
     $userModel->updateLastActivity($_SESSION['id_user']);
     exit;
@@ -156,7 +158,7 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-warning edit-user-btn" data-id="<?= $user['id_user'] ?>" data-username="<?= $user['username'] ?>" data-email="<?= $user['email'] ?>" data-dept="<?= $user['departemen'] ?>" data-role="<?= $user['role'] ?>"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-outline-warning edit-user-btn" data-id="<?= $user['id_user'] ?>" data-username="<?= $user['username'] ?>" data-email="<?= $user['email'] ?>" data-role="<?= $user['role'] ?>"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(<?= $user['id_user'] ?>)">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -172,8 +174,9 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
 
     <div class="modal fade" id="addUserModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content card-custom">
-                <form id="addUserForm">
+                <div class="modal-content card-custom">
+                	<form id="addUserForm">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <div class="modal-header border-0">
                         <h5 class="fw-bold">Tambah User Baru</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -201,9 +204,10 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
 
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content card-custom">
-                <form id="editUserForm">
+                <div class="modal-content card-custom">
+                	<form id="editUserForm">
                     <input type="hidden" name="id_user" id="edit_id_user">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <div class="modal-header border-0">
                         <h5 class="fw-bold">Update User</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -231,12 +235,13 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function initEditButtons() {
+            const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token']) ?>';
+
             document.querySelectorAll('.edit-user-btn').forEach(btn => {
                 btn.onclick = function() {
                     document.getElementById('edit_id_user').value = this.dataset.id;
                     document.getElementById('edit_username').value = this.dataset.username;
                     document.getElementById('edit_email').value = this.dataset.email;
-                    document.getElementById('edit_dept').value = this.dataset.dept;
                     document.getElementById('edit_role').value = this.dataset.role;
                     new bootstrap.Modal(document.getElementById('editUserModal')).show();
                 };
@@ -295,9 +300,15 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
 
         function deleteUser(id) {
             if (confirm('Hapus user ini?')) {
+                const fd = new FormData();
+                fd.append('csrf_token', csrfToken);
                 fetch('index.php?page=admin_dashboard&action=delete_user&id=' + id, {
-                    method: 'POST'
-                }).then(() => location.reload());
+                    method: 'POST',
+                    body: fd
+                }).then(res => res.json()).then(data => {
+                    alert(data.message);
+                    if (data.status === 'success') location.reload();
+                }).catch(() => location.reload());
             }
         }
     </script>

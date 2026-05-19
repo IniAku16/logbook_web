@@ -1,3 +1,12 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -189,14 +198,28 @@
         <h2>Reset Password</h2>
         <p class="subtitle">Enter your details to set a new password</p>
 
-        <?php if (isset($_GET['error'])): ?>
+        <?php if (!empty($_SESSION['error_msg'])): ?>
             <div class="alert alert-custom d-flex align-items-center justify-content-center">
                 <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <?= htmlspecialchars($_GET['error']) ?>
+                <?= htmlspecialchars($_SESSION['error_msg']) ?>
             </div>
+            <?php unset($_SESSION['error_msg']); ?>
         <?php endif; ?>
 
-        <form method="POST" action="../../controllers/ForgotPasswordController.php" class="text-start">
+        <?php if (!empty($_SESSION['success_msg'])): ?>
+            <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 14px; font-weight: 600; font-size: 0.85rem;">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <?= htmlspecialchars($_SESSION['success_msg']) ?>
+            </div>
+            <?php unset($_SESSION['success_msg']); ?>
+        <?php endif; ?>
+
+        <?php
+            $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERVER['SCRIPT_NAME']);
+        ?>
+        <form method="POST" action="<?= htmlspecialchars($frontController) ?>" class="text-start">
+            <input type="hidden" name="form" value="reset_password">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
             <div class="mb-3">
                 <label class="form-label">Username / Email</label>
@@ -226,7 +249,7 @@
         </form>
 
         <p class="footer-text">
-            Remembered? <a href="login.php" class="link-pastel">Back to Login</a>
+            Remembered? <a href="<?= htmlspecialchars($frontController) ?>" class="link-pastel">Back to Login</a>
         </p>
     </div>
 

@@ -30,11 +30,20 @@ class UserModel
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
 
-            if ($row['username'] !== $this->username && $row['email'] !== $this->username){
+            if ($row['username'] !== $this->username && $row['email'] !== $this->username) {
                 return false;
             }
 
-            if (password_verify($this->password, $row['password'])) {
+            $providedPassword = $this->password;
+            $storedPassword = $row['password'];
+            $pwInfo = password_get_info($storedPassword);
+            $isHashed = !empty($pwInfo['algo']);
+
+            if (password_verify($providedPassword, $storedPassword) || (!$isHashed && $storedPassword === $providedPassword)) {
+                if (!$isHashed) {
+                    $this->rehashPassword($row['id_user'], $providedPassword);
+                }
+
                 $this->id_user = $row['id_user'];
                 $this->username = $row['username'];
                 $this->email = $row['email'];
@@ -43,6 +52,23 @@ class UserModel
             }
         }
         return false;
+    }
+
+    private function rehashPassword($id_user, $password)
+    {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $query = "UPDATE " . $this->table . " SET password = ? WHERE id_user = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("si", $hashed, $id_user);
+        $stmt->execute();
+    }
+
+    public function getUserCount()
+    {
+        $query = "SELECT COUNT(*) AS total FROM " . $this->table;
+        $result = $this->db->query($query);
+        $row = $result->fetch_assoc();
+        return (int)($row['total'] ?? 0);
     }
 
     public function updateLastActivity($id_user)

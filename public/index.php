@@ -3,59 +3,124 @@ session_start();
 
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("X-Frame-Options: DENY"); 
+header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 
 require_once __DIR__ . "/../config/koneksi.php";
 require_once __DIR__ . "/../models/User.php";
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $userModel = new UserModel($koneksi);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
-    $login = trim($_POST['login']);
-    $password = $_POST['password'];
-    
-    $stmt = mysqli_prepare($koneksi, "SELECT * FROM users WHERE BINARY username = ? OR BINARY email = ?");
-    mysqli_stmt_bind_param($stmt, "ss", $login, $login);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $data = mysqli_fetch_assoc($result);
+if ($userModel->getUserCount() === 0) {
+    $userModel->createUser('admin', 'admin@gmail.com', 'Admin123', 'admin');
+    $_SESSION['success_msg'] = "Default admin dibuat: admin / Admin123";
+}
 
-    if ($data && password_verify($password, $data['password'])) {
-        session_regenerate_id(true);
-        $_SESSION['id_user']    = $data['id_user'];
-        $_SESSION['username']   = $data['username'];
-        $_SESSION['role']       = $data['role'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $form = $_POST['form'] ?? '';
+    $csrfToken = $_POST['csrf_token'] ?? '';
 
-        $userModel->updateLastActivity($data['id_user']);
-
-        $redirect = ($data['role'] === 'admin') ? 'admin_dashboard' : 'user_dashboard';
-        header("Location: index.php?page=" . $redirect);
+    if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        $_SESSION['error_msg'] = "Invalid request token.";
+        header("Location: index.php");
         exit();
-    } else {
-        $_SESSION['error_msg'] = "Login Gagal! Periksa Kembali Data Anda!";
-        header("Location: ../views/auth/login.php");
+    }
+
+    if ($form === 'login') {
+        $login = trim($_POST['login'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if (empty($login) || empty($password)) {
+            $_SESSION['error_msg'] = "Login gagal. Username/email dan password harus diisi.";
+            header("Location: index.php");
+            exit();
+        }
+
+        $userModel->username = $login;
+        $userModel->password = $password;
+
+        if ($userModel->login()) {
+            session_regenerate_id(true);
+            $_SESSION['id_user'] = $userModel->id_user;
+            $_SESSION['username'] = $userModel->username;
+            $_SESSION['role'] = $userModel->role;
+
+            $userModel->updateLastActivity($userModel->id_user);
+
+            $redirect = ($userModel->role === 'admin') ? 'admin_dashboard' : 'user_dashboard';
+            header("Location: index.php?page=" . $redirect);
+            exit();
+        }
+
+        $_SESSION['error_msg'] = "Login gagal! Periksa kembali username/email dan password.";
+        header("Location: index.php");
+        exit();
+    }
+
+    if ($form === 'reset_password') {
+        $identifier = trim($_POST['identifier'] ?? '');
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        if (empty($identifier) || empty($newPassword) || empty($confirmPassword)) {
+            $_SESSION['error_msg'] = "Semua kolom harus diisi.";
+            header("Location: index.php?page=forgot_password");
+            exit();
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            $_SESSION['error_msg'] = "Password baru dan konfirmasi password tidak cocok.";
+            header("Location: index.php?page=forgot_password");
+            exit();
+        }
+
+        if ($userModel->updatePassword($identifier, $newPassword)) {
+            $_SESSION['success_msg'] = "Password berhasil diperbarui. Silakan login.";
+            header("Location: index.php");
+            exit();
+        }
+
+        $_SESSION['error_msg'] = "Username atau email tidak ditemukan.";
+        header("Location: index.php?page=forgot_password");
         exit();
     }
 }
 
 if (!isset($_SESSION['id_user'])) {
+    $page = $_GET['page'] ?? null;
+
+    if ($page === 'forgot_password') {
+        include __DIR__ . "/../views/auth/forget_password.php";
+        exit();
+    }
+
     include __DIR__ . "/../views/auth/login.php";
     exit();
 }
 
+$page = $_GET['page'] ?? null;
+
+if ($page === 'logout') {
+    $userModel->setOffline($_SESSION['id_user']);
+    session_unset();
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
 $role = $_SESSION['role'];
-$page = $_GET['page'] ?? ($role === 'admin' ? 'admin_dashboard' : 'user_dashboard');
 
 $access_map = [
     'admin_dashboard' => ['admin'],
     'user_dashboard'  => ['user'],
 ];
 
-if (!isset($access_map[$page]) || !in_array($role, $access_map[$page])) {
-    $redirect = ($role === 'admin') ? 'admin_dashboard' : 'user_dashboard';
-    header("Location: index.php?page=" . $redirect);
-    exit();
+if (!isset($access_map[$page]) || !in_array($role, $access_map[$page], true)) {
+    $page = ($role === 'admin') ? 'admin_dashboard' : 'user_dashboard';
 }
 
 $action = $_GET['action'] ?? 'index';
@@ -80,17 +145,12 @@ if ($page === 'admin_dashboard') {
 
     $allowed_actions = ['create', 'update', 'delete'/*, 'exportExcel', 'importExcel', 'history', 'history-detail', 'history-pdf'*/, 'index'];
     
-    if (in_array($action, $allowed_actions)) {
+    if (in_array($action, $allowed_actions, true)) {
         switch ($action) {
-            case 'create':         $notesController->create(); break;
-            case 'update':         $notesController->update($id); break;
-            case 'delete':         $notesController->delete($id); break;
-            /*case 'exportExcel':    $notesController->exportExcel(); break;
-            case 'importExcel':    $notesController->importExcel(); break;
-            case 'history':        $notesController->history(); break;
-            case 'history-detail': $notesController->historyDetail(); break;
-            case 'history-pdf':    $notesController->historyPdf(); break;*/
-            default:               $notesController->index(); break;
+            case 'create': $notesController->create(); break;
+            case 'update': $notesController->update($id); break;
+            case 'delete': $notesController->delete($id); break;
+            default: $notesController->index(); break;
         }
     } else {
         $notesController->index();

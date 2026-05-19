@@ -160,7 +160,10 @@
                     <h1 id="welcome-text" class="mb-1 text-white">SYSTEM LOGBOOK</h1>
                     <p class="text-white-50 mb-0"><i class="bi bi-shield-check me-2"></i>Monitoring Aktivitas Operasional Real-time</p>
                 </div>
-                <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex justify-content-end align-items-center gap-2 flex-wrap">
+                    <a href="index.php?page=logout" class="btn btn-action btn-outline-light border border-white border-opacity-25 text-white shadow-sm">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
                     <button class="btn btn-action btn-primary-tech shadow" data-bs-toggle="modal" data-bs-target="#createNoteModal">
                         <i class="bi bi-plus-lg"></i> ENTRY LOG BARU
                     </button>
@@ -226,15 +229,15 @@
                                             <button class="btn btn-sm btn-edit-tool btn-edit"
                                                 data-id="<?= $note['id'] ?>"
                                                 data-date="<?= $note['date'] ?>"
-                                                data-desc="<?= htmlspecialchars($note['description']) ?>"
+                                                data-desc="<?= htmlspecialchars($note['description'], ENT_QUOTES) ?>"
                                                 data-area="<?= $note['id_area'] ?>"
                                                 data-jenis="<?= $note['jenis'] ?>"
                                                 data-target="<?= $note['target'] ?>"
-                                                data-material="<?= htmlspecialchars($note['material']) ?>"
+                                                data-material="<?= htmlspecialchars($note['material'], ENT_QUOTES) ?>"
                                                 data-bs-toggle="modal" data-bs-target="#editNoteModal">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </button>
-                                            <a href="?action=delete&id=<?= $note['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus data secara permanen?')">
+                                            <a href="?page=user_dashboard&action=delete&id=<?= $note['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus data secara permanen?')">
                                                 <i class="bi bi-trash3-fill"></i>
                                             </a>
                                         </div>
@@ -257,7 +260,7 @@
 
     <div class="modal fade" id="createNoteModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <form action="?action=create" method="POST" class="modal-content border-0 shadow-lg">
+            <form action="?page=user_dashboard&action=create" method="POST" class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-dark text-white border-0">
                     <h5 class="fw-bold mb-0 ml-2">FORM INPUT AKTIVITAS</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -284,7 +287,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>Klasifikasi Pekerjaan</label>
-                            <select name="jenis" class="form-select">
+                            <select name="jenis" class="form-select" required>
                                 <option value="">- Pilih Pekerjaan -</option>
                                 <option value="Check List-Routine">Check List-Routine</option>
                                 <option value="Complain">Complain</option>
@@ -294,7 +297,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>Target Status</label>
-                            <select name="target" class="form-select">
+                            <select name="target" class="form-select" required>
                                 <option value="">- Pilih Status -</option>
                                 <option value="Menunggu Proses">Menunggu Proses</option>
                                 <option value="Lanjut">Lanjut</option>
@@ -343,7 +346,8 @@
                         </div>
                         <div class="col-md-6">
                             <label>Jenis</label>
-                            <select name="jenis" id="edit_jenis" class="form-select">
+                            <select name="jenis" id="edit_jenis" class="form-select" required>
+                                <option value="">- Pilih Pekerjaan -</option>
                                 <option value="Check List-Routine">Check List-Routine</option>
                                 <option value="Complain">Complain</option>
                                 <option value="Perbaikan/Perawatan">Perbaikan/Perawatan</option>
@@ -352,7 +356,8 @@
                         </div>
                         <div class="col-md-6">
                             <label>Target Status</label>
-                            <select name="target" id="edit_target" class="form-select">
+                            <select name="target" id="edit_target" class="form-select" required>
+                                <option value="">- Pilih Status -</option>
                                 <option value="Menunggu Proses">Menunggu Proses</option>
                                 <option value="Lanjut">Lanjut</option>
                                 <option value="Selesai">Selesai</option>
@@ -389,7 +394,7 @@
         document.querySelectorAll('.btn-edit').forEach(button => {
             button.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                document.getElementById('formEdit').action = `?action=update&id=${id}`;
+                document.getElementById('formEdit').action = `?page=user_dashboard&action=update&id=${id}`;
                 document.getElementById('edit_date').value = this.getAttribute('data-date');
                 document.getElementById('edit_desc').value = this.getAttribute('data-desc');
                 document.getElementById('edit_area').value = this.getAttribute('data-area');
