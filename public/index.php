@@ -1,30 +1,98 @@
 <?php
 session_start();
 
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("X-Frame-Options: DENY"); 
+header("X-Content-Type-Options: nosniff");
+
 require_once __DIR__ . "/../config/koneksi.php";
-require_once __DIR__ . "/../controllers/NotesController.php";
+require_once __DIR__ . "/../models/User.php";
 
-$NotesController = new NotesController($koneksi);
+$userModel = new UserModel($koneksi);
 
-$action = $_GET['action'] ?? 'index';
-$id = $_GET['id'] ?? null;
-
-switch ($action){
-    case 'create':
-        $NotesController->create();
-        break;
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+    $login = trim($_POST['login']);
+    $password = $_POST['password'];
     
-    case 'update':
-        $NotesController->update($id);
-        break;
-    
-    case 'delete':
-        $NotesController->delete($id);
-        break;
+    $stmt = mysqli_prepare($koneksi, "SELECT * FROM users WHERE BINARY username = ? OR BINARY email = ?");
+    mysqli_stmt_bind_param($stmt, "ss", $login, $login);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $data = mysqli_fetch_assoc($result);
 
-    default:
-        $NotesController->index();
-        break;
+    if ($data && password_verify($password, $data['password'])) {
+        session_regenerate_id(true);
+        $_SESSION['id_user']    = $data['id_user'];
+        $_SESSION['username']   = $data['username'];
+        $_SESSION['role']       = $data['role'];
+
+        $userModel->updateLastActivity($data['id_user']);
+
+        $redirect = ($data['role'] === 'admin') ? 'admin_dashboard' : 'user_dashboard';
+        header("Location: index.php?page=" . $redirect);
+        exit();
+    } else {
+        $_SESSION['error_msg'] = "Login Gagal! Periksa Kembali Data Anda!";
+        header("Location: ../views/auth/login.php");
+        exit();
+    }
 }
 
-?>
+if (!isset($_SESSION['id_user'])) {
+    include __DIR__ . "/../views/auth/login.php";
+    exit();
+}
+
+$role = $_SESSION['role'];
+$page = $_GET['page'] ?? ($role === 'admin' ? 'admin_dashboard' : 'user_dashboard');
+
+$access_map = [
+    'admin_dashboard' => ['admin'],
+    'user_dashboard'  => ['user'],
+];
+
+if (!isset($access_map[$page]) || !in_array($role, $access_map[$page])) {
+    $redirect = ($role === 'admin') ? 'admin_dashboard' : 'user_dashboard';
+    header("Location: index.php?page=" . $redirect);
+    exit();
+}
+
+$action = $_GET['action'] ?? 'index';
+$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+
+if ($page === 'admin_dashboard') {
+    
+    require_once __DIR__ . "/../controllers/AdminController.php";
+    $adminCtrl = new AdminController($koneksi);
+
+    switch ($action) {
+        case 'add_user':    $adminCtrl->create(); break;
+        case 'edit_user':   $adminCtrl->update($id); break;
+        case 'delete_user': $adminCtrl->delete($id); break;
+        default:            $adminCtrl->index(); break;
+    }
+
+} elseif ($page === 'user_dashboard') {
+
+    require_once __DIR__ . "/../controllers/NotesController.php";
+    $notesController = new NotesController($koneksi);
+
+    $allowed_actions = ['create', 'update', 'delete'/*, 'exportExcel', 'importExcel', 'history', 'history-detail', 'history-pdf'*/, 'index'];
+    
+    if (in_array($action, $allowed_actions)) {
+        switch ($action) {
+            case 'create':         $notesController->create(); break;
+            case 'update':         $notesController->update($id); break;
+            case 'delete':         $notesController->delete($id); break;
+            /*case 'exportExcel':    $notesController->exportExcel(); break;
+            case 'importExcel':    $notesController->importExcel(); break;
+            case 'history':        $notesController->history(); break;
+            case 'history-detail': $notesController->historyDetail(); break;
+            case 'history-pdf':    $notesController->historyPdf(); break;*/
+            default:               $notesController->index(); break;
+        }
+    } else {
+        $notesController->index();
+    }
+}
