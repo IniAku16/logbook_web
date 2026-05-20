@@ -6,267 +6,307 @@ if (session_status() === PHP_SESSION_NONE) {
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+$frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERVER['SCRIPT_NAME']);
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Reset Password | Activity Digital</title>
 
-  <style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
         :root {
-            --pastel-bg: #eef6ff;
-            --primary-pastel: #3ba4ff;
-            --primary-dark: #1f7ae0;
-            --dark-text: #1c2a3a;
-            --muted-text: #7f9bb3;
-            --soft-border: #cfe5ff;
+            --bg-body: #ece3db;
+            --milk-tea: #d4bda9;
+            --caramel: #967259;
+            --espresso: #2d1b14;
+            --white: #ffffff;
+            --accent-gold: #c6a664;
+            --shadow-bold: 0 20px 50px rgba(45, 27, 20, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #a1caff, #6b9fff);
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .custom-card {
-            background: #ffffff;
-            border-radius: 28px;
-            padding: 50px 45px;
-            width: 100%;
-            max-width: 420px;
-
-            border: 3px solid #000;
-            box-shadow: 10px 10px 0px #000;
-
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        h2 {
-            font-weight: 700;
-            color: var(--dark-text);
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: var(--muted-text);
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 35px;
-        }
-
-        .form-label {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--dark-text);
-            margin-left: 4px;
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            border-radius: 16px;
-            padding: 14px 20px;
-            border: 2px solid #000;
-            font-weight: 600;
-            background-color: #f2f8ff;
-            transition: all 0.2s ease;
-            color: var(--dark-text);
-        }
-
-        .form-control:focus {
-            border-color: #000;
-            box-shadow: 4px 4px 0px #000;
-            background-color: #ffffff;
-            outline: none;
-        }
-
-        .password-wrapper {
+            align-items: center;
+            background-color: var(--bg-body);
+            overflow: hidden;
             position: relative;
         }
 
-        .form-control-password {
-            padding-right: 55px !important;
-        }
-
-        .toggle-password {
+        body::before {
+            content: "";
             position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--muted-text);
-            font-size: 1.25rem;
-            z-index: 10;
-            transition: color 0.3s ease;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--milk-tea) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            opacity: 0.4;
+            z-index: 0;
         }
 
-        .toggle-password:hover {
-            color: var(--primary-pastel);
+        body::after {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--caramel) 0%, transparent 70%);
+            bottom: -150px;
+            left: -100px;
+            opacity: 0.2;
+            z-index: 0;
         }
 
-        input::-ms-reveal,
-        input::-ms-clear,
-        input::-webkit-password-reveal {
-            display: none !important;
+        .card {
+            width: 440px;
+            padding: 50px 40px;
+            border-radius: 35px;
+            background: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-bold);
+            z-index: 2;
+            position: relative;
         }
 
-        .btn-custom {
-            background: linear-gradient(135deg, #3ba4ff, #6ec1ff);
-            border: 2px solid #000;
+        .brand-text {
+            text-align: center;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--accent-gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--espresso);
+            margin-bottom: 35px;
+            letter-spacing: -1.5px;
+        }
+
+        .alert {
+            padding: 14px 18px;
             border-radius: 16px;
-            padding: 16px;
-            color: white;
+            font-size: 13.5px;
             font-weight: 700;
-            width: 100%;
-            margin-top: 15px;
-            margin-bottom: 20px;
-            box-shadow: 6px 6px 0px #000;
-            transition: all 0.2s ease;
-        }
-
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 8px 8px 0px #000;
-        }
-
-        .btn-custom:active {
-            transform: translateY(0);
-            box-shadow: 4px 4px 0px #000;
-        }
-
-        .alert-custom {
-            background-color: #fff5f5;
-            border: 2px solid #000;
-            color: #c53030;
-            font-weight: 600;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            padding: 12px;
             margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: shake 0.5s ease-in-out;
         }
 
-        .footer-section {
+        .alert-error {
+            background: #fff5f5;
+            border: 2px solid #feb2b2;
+            color: #c53030;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border: 2px solid #9ae6b4;
+            color: #276749;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--caramel);
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid #eeeae6;
+            background: #fcfaf8;
+            color: var(--espresso);
+            outline: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--caramel);
+            background: var(--white);
+            box-shadow: 0 0 0 5px rgba(150, 114, 89, 0.1);
+        }
+
+        .toggle {
+            position: absolute;
+            right: 20px;
+            top: 42px;
+            cursor: pointer;
+            color: var(--milk-tea);
+            font-size: 20px;
+            transition: 0.2s;
+            z-index: 10;
+        }
+
+        .toggle:hover {
+            color: var(--espresso);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 18px;
+            background: var(--espresso);
+            color: var(--white);
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(45, 27, 20, 0.2);
+        }
+
+        button:hover {
+            background: var(--caramel);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(150, 114, 89, 0.3);
+        }
+
+        .footer-link {
+            text-align: center;
             margin-top: 30px;
         }
 
-        .footer-text {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #718096;
-            margin-bottom: 8px;
-        }
-
-        .link-pastel {
-            color: var(--primary-pastel);
+        .footer-link a {
+            font-size: 14px;
+            color: var(--caramel);
             text-decoration: none;
-            font-weight: 700;
-            transition: color 0.3s ease;
+            font-weight: 800;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .link-pastel:hover {
-            color: var(--primary-dark);
+        .footer-link a:hover {
+            color: var(--espresso);
             text-decoration: underline;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        ::placeholder {
+            color: #ccc0b5;
+            font-weight: 500;
         }
     </style>
 </head>
 
 <body>
-    <div class="custom-card text-center">
-        <h2>Reset Password</h2>
-        <p class="subtitle">Enter your details to set a new password</p>
+
+    <div class="card">
+        <div class="brand-text">Security Center</div>
+        <div class="title">Reset Password</div>
 
         <?php if (!empty($_SESSION['error_msg'])): ?>
-            <div class="alert alert-custom d-flex align-items-center justify-content-center">
-                <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <?= htmlspecialchars($_SESSION['error_msg']) ?>
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-circle-fill" style="font-size: 18px;"></i>
+                <span><?= htmlspecialchars($_SESSION['error_msg']) ?></span>
             </div>
             <?php unset($_SESSION['error_msg']); ?>
         <?php endif; ?>
 
         <?php if (!empty($_SESSION['success_msg'])): ?>
-            <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 14px; font-weight: 600; font-size: 0.85rem;">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <?= htmlspecialchars($_SESSION['success_msg']) ?>
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill" style="font-size: 18px;"></i>
+                <span><?= htmlspecialchars($_SESSION['success_msg']) ?></span>
             </div>
             <?php unset($_SESSION['success_msg']); ?>
         <?php endif; ?>
 
-        <?php
-            $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERVER['SCRIPT_NAME']);
-        ?>
-        <form method="POST" action="<?= htmlspecialchars($frontController) ?>" class="text-start">
+        <form action="<?= htmlspecialchars($frontController) ?>" method="POST">
             <input type="hidden" name="form" value="reset_password">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-            <div class="mb-3">
-                <label class="form-label">Username / Email</label>
-                <input type="text" name="identifier" class="form-control" placeholder="Your username or email" required>
+            <div class="input-group">
+                <label>Username / Email</label>
+                <input type="text" name="identifier" placeholder="Masukkan akun Anda" required autocomplete="off">
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">New Password</label>
-                <div class="password-wrapper">
-                    <input type="password" name="new_password" id="pass1" class="form-control form-control-password" placeholder="••••••••" required>
-                    <i class="bi bi-eye-slash toggle-password" onclick="togglePass('pass1', this)"></i>
-                </div>
+            <div class="input-group">
+                <label>Password Baru</label>
+                <input type="password" id="pass1" name="new_password" placeholder="••••••••" required>
+                <i class="bi bi-eye-slash toggle" onclick="togglePass('pass1', this)"></i>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label">Confirm Password</label>
-                <div class="password-wrapper">
-                    <input type="password" name="confirm_password" id="pass2" class="form-control form-control-password" placeholder="••••••••" required>
-                    <i class="bi bi-eye-slash toggle-password" onclick="togglePass('pass2', this)"></i>
-                </div>
+            <div class="input-group">
+                <label>Konfirmasi Password</label>
+                <input type="password" id="pass2" name="confirm_password" placeholder="••••••••" required>
+                <i class="bi bi-eye-slash toggle" onclick="togglePass('pass2', this)"></i>
             </div>
 
-            <button type="submit" class="btn btn-custom">
-                Update Password <i class="bi bi-arrow-right-short ms-1"></i>
-            </button>
-
+            <button type="submit">UPDATE PASSWORD</button>
         </form>
 
-        <p class="footer-text">
-            Remembered? <a href="<?= htmlspecialchars($frontController) ?>" class="link-pastel">Back to Login</a>
-        </p>
+        <div class="footer-link">
+            <a href="<?= htmlspecialchars($frontController) ?>">
+                <i class="bi bi-arrow-left-circle-fill"></i> Kembali ke Login
+            </a>
+        </div>
     </div>
 
     <script>
         function togglePass(inputId, icon) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.replace('bi-eye-slash', 'bi-eye');
-            } else {
-                input.type = "password";
-                icon.classList.replace('bi-eye', 'bi-eye-slash');
-            }
+            const passwordInput = document.getElementById(inputId);
+            const isHidden = passwordInput.getAttribute("type") === "password";
+
+            passwordInput.setAttribute("type", isHidden ? "text" : "password");
+
+            icon.classList.toggle("bi-eye");
+            icon.classList.toggle("bi-eye-slash");
         }
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

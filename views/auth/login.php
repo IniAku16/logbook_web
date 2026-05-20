@@ -6,6 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+$frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERVER['SCRIPT_NAME']);
 ?>
 
 <!DOCTYPE html>
@@ -14,253 +16,271 @@ if (empty($_SESSION['csrf_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login | Activity Digital</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         :root {
-            --pastel-bg: #eef6ff;
-            --primary-pastel: #3ba4ff;
-            --primary-dark: #1f7ae0;
-            --dark-text: #1c2a3a;
-            --muted-text: #7f9bb3;
-            --soft-border: #cfe5ff;
+            --bg-body: #ece3db;
+            --milk-tea: #d4bda9;
+            --caramel: #967259;
+            --espresso: #2d1b14;
+            --white: #ffffff;
+            --accent-gold: #c6a664;
+            --shadow-bold: 0 20px 50px rgba(45, 27, 20, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #a1caff, #6b9fff);
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: #ffffff;
-            border-radius: 28px;
-            padding: 50px 45px;
-            width: 100%;
-            max-width: 420px;
-
-            border: 3px solid #000;
-            box-shadow: 10px 10px 0px #000;
-
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        h2 {
-            font-weight: 700;
-            color: var(--dark-text);
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: var(--muted-text);
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 35px;
-        }
-
-        .form-label {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--dark-text);
-            margin-left: 4px;
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            border-radius: 16px;
-            padding: 14px 20px;
-            border: 2px solid #000;
-            font-weight: 600;
-            background-color: #f2f8ff;
-            transition: all 0.2s ease;
-            color: var(--dark-text);
-        }
-
-        .form-control:focus {
-            border-color: #000;
-            box-shadow: 4px 4px 0px #000;
-            background-color: #ffffff;
-            outline: none;
-        }
-
-        .password-wrapper {
+            align-items: center;
+            background-color: var(--bg-body);
+            overflow: hidden;
             position: relative;
         }
 
-        .form-control-password {
-            padding-right: 55px !important;
-        }
-
-        .toggle-password {
+        body::before {
+            content: "";
             position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--muted-text);
-            font-size: 1.25rem;
-            z-index: 10;
-            transition: color 0.3s ease;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--milk-tea) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            opacity: 0.4;
+            z-index: 0;
         }
 
-        .toggle-password:hover {
-            color: var(--primary-pastel);
+        body::after {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--caramel) 0%, transparent 70%);
+            bottom: -150px;
+            left: -100px;
+            opacity: 0.2;
+            z-index: 0;
         }
 
-        input::-ms-reveal,
-        input::-ms-clear,
-        input::-webkit-password-reveal {
-            display: none !important;
+        .card {
+            width: 420px;
+            padding: 50px 40px;
+            border-radius: 35px;
+            background: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-bold);
+            z-index: 2;
+            position: relative;
         }
 
-        .btn-login {
-            background: linear-gradient(135deg, #3ba4ff, #6ec1ff);
-            border: 2px solid #000;
-            border-radius: 16px;
-            padding: 16px;
-            color: white;
-            font-weight: 700;
-            width: 100%;
-            margin-top: 15px;
-
-            box-shadow: 6px 6px 0px #000;
-            transition: all 0.2s ease;
+        .brand-text {
+            text-align: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--accent-gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 8px 8px 0px #000;
+        .title {
+            text-align: center;
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--espresso);
+            margin-bottom: 35px;
+            letter-spacing: -1.5px;
         }
 
-        .btn-login:active {
-            transform: translateY(0);
-            box-shadow: 4px 4px 0px #000;
-        }
-
-        .alert-custom {
-            background-color: #fff5f5;
-            border: 2px solid #000;
+        .alert {
+            background: #fff5f5;
+            border: 2px solid #feb2b2;
             color: #c53030;
-            font-weight: 600;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            padding: 12px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            font-weight: 700;
             margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: shake 0.5s ease-in-out;
         }
 
-        .footer-section {
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--caramel);
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid #eeeae6;
+            background: #fcfaf8;
+            color: var(--espresso);
+            outline: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--caramel);
+            background: var(--white);
+            box-shadow: 0 0 0 5px rgba(150, 114, 89, 0.1);
+        }
+
+        .toggle {
+            position: absolute;
+            right: 20px;
+            top: 45px;
+            cursor: pointer;
+            color: var(--milk-tea);
+            font-size: 20px;
+            transition: 0.2s;
+            z-index: 10;
+        }
+
+        .toggle:hover {
+            color: var(--espresso);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 18px;
+            background: var(--espresso);
+            color: var(--white);
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(45, 27, 20, 0.2);
+        }
+
+        button:hover {
+            background: var(--caramel);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(150, 114, 89, 0.3);
+        }
+
+        .forgot {
+            text-align: center;
             margin-top: 30px;
         }
 
-        .footer-text {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #718096;
-            margin-bottom: 8px;
-        }
-
-        .link-pastel {
-            color: var(--primary-pastel);
+        .forgot a {
+            font-size: 14px;
+            color: var(--caramel);
             text-decoration: none;
-            font-weight: 700;
-            transition: color 0.3s ease;
+            font-weight: 800;
+            transition: 0.3s;
         }
 
-        .link-pastel:hover {
-            color: var(--primary-dark);
+        .forgot a:hover {
+            color: var(--espresso);
             text-decoration: underline;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        ::placeholder {
+            color: #ccc0b5;
+            font-weight: 500;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="login-card text-center">
-        <h2>Welcome</h2>
-        <p class="subtitle">Please enter your details to sign in</p>
+    <div class="card">
+        <div class="brand-text">Activity Digital</div>
+        <div class="title">Selamat Datang</div>
 
         <?php if (isset($_SESSION['error_msg'])): ?>
-            <div class="alert alert-custom d-flex align-items-center justify-content-center">
-                <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <?= htmlspecialchars($_SESSION['error_msg']) ?>
+            <div class="alert">
+                <i class="bi bi-exclamation-circle-fill" style="font-size: 18px;"></i>
+                <span><?= htmlspecialchars($_SESSION['error_msg']) ?></span>
             </div>
             <?php unset($_SESSION['error_msg']); ?>
         <?php endif; ?>
 
-        <?php if (isset($_SESSION['success_msg'])): ?>
-            <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 14px; font-weight: 600; font-size: 0.85rem;">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <?= htmlspecialchars($_SESSION['success_msg']) ?>
-            </div>
-            <?php unset($_SESSION['success_msg']); ?>
-        <?php endif; ?>
-
-        <?php
-            $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERVER['SCRIPT_NAME']);
-        ?>
-        <form action="<?= htmlspecialchars($frontController) ?>" method="POST" class="text-start">
+        <form action="<?= htmlspecialchars($frontController) ?>" method="POST">
             <input type="hidden" name="form" value="login">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-            <div class="mb-3">
-                <label class="form-label">Username / Email</label>
-                <input type="text" name="login" class="form-control" placeholder="Enter username or email" required autocomplete="username">
+            <div class="input-group">
+                <label>Username / Email</label>
+                <input type="text" name="login" placeholder="Masukkan akun Anda" required autocomplete="off">
             </div>
 
-            <div class="mb-4">
-                <label class="form-label">Password</label>
-                <div class="password-wrapper">
-                    <input type="password" name="password" id="passwordInput" class="form-control" placeholder="••••••••" required autocomplete="current-password">
-                    <i class="bi bi-eye-slash toggle-password" id="eyeIcon"></i>
-                </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+                <i class="bi bi-eye-slash toggle" id="togglePassword"></i>
             </div>
 
-            <button type="submit" name="login_btn" class="btn btn-login">
-                Sign In <i class="bi bi-arrow-right-short ms-1"></i>
-            </button>
+            <button type="submit">MASUK SEKARANG</button>
         </form>
 
-        <div class="footer-section">
-            <p class="footer-text mt-2">
-                <a href="<?= htmlspecialchars($frontController . '?page=forgot_password') ?>" class="link-pastel">Forgot Password?</a>
-            </p>
+        <div class="forgot">
+            <a href="<?= htmlspecialchars($frontController . '?page=forgot_password') ?>">Lupa password Anda?</a>
         </div>
     </div>
 
     <script>
-        const passwordInput = document.getElementById('passwordInput');
-        const eyeIcon = document.getElementById('eyeIcon');
+        const password = document.getElementById("password");
+        const toggle = document.getElementById("togglePassword");
 
-        eyeIcon.addEventListener('click', function() {
-            const isPassword = passwordInput.getAttribute('type') === 'password';
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-            this.classList.toggle('bi-eye');
-            this.classList.toggle('bi-eye-slash');
+        toggle.addEventListener("click", function() {
+            const isHidden = password.getAttribute("type") === "password";
+            password.setAttribute("type", isHidden ? "text" : "password");
+
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
         });
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

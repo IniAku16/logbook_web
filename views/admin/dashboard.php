@@ -13,130 +13,316 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management</title>
+    <title>Management Panel | Activity Digital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <style>
         :root {
-            --primary-grad: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --bg-body: #ece3db;
+            --milk-tea: #d4bda9;
+            --caramel: #967259;
+            --espresso: #2d1b14;
+            --white: #ffffff;
+            --accent-gold: #c6a664;
+            --shadow-bold: 0 15px 35px rgba(45, 27, 20, 0.15);
         }
 
         body {
-            background: #f8f9fa;
+            background-color: var(--bg-body);
             font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--espresso);
+        }
+
+        .top-nav {
+            background: var(--espresso);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-logo {
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .brand-logo span {
+            color: var(--accent-gold);
+        }
+
+        .main-container {
+            padding: 40px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-title h1 {
+            font-weight: 800;
+            font-size: 38px;
+            color: var(--espresso);
             margin: 0;
-            padding: 0;
-        }
-
-        .navbar-custom {
-            background: white;
-            box-shadow: var(--card-shadow);
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-
-        .card-custom {
-            background: white;
-            border: none;
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
+            letter-spacing: -1.5px;
         }
 
         .stat-card {
-            border: none;
-            border-radius: 20px;
-            transition: 0.3s;
-            background: white;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .stat-card::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: #4facfe;
-        }
-
-        .table-container {
-            background: white;
+            background: var(--white);
+            border: 2px solid var(--milk-tea);
             border-radius: 24px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
+            padding: 25px 35px;
+            box-shadow: var(--shadow-bold);
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            width: fit-content;
+            transition: transform 0.3s ease;
         }
 
-        .badge-role {
-            border-radius: 8px;
-            padding: 5px 12px;
-            font-size: 0.75rem;
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
-        .btn-primary {
-            background: var(--primary-grad);
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--espresso), var(--caramel));
+            color: var(--white);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 8px 20px rgba(45, 27, 20, 0.3);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--caramel);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--espresso);
+            line-height: 1;
+        }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 30px;
+            padding: 35px;
+            box-shadow: var(--shadow-bold);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-top: 30px;
+        }
+
+        .table thead th {
+            color: var(--espresso);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 13px;
+            padding: 20px;
+            background-color: #f8f5f2;
+            border-bottom: 3px solid var(--milk-tea);
+        }
+
+        .table tbody td {
+            padding: 20px;
+            font-weight: 600;
+            border-bottom: 1px solid #eeeae6;
+            vertical-align: middle;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-admin {
+            background: var(--espresso);
+            color: var(--white);
+        }
+
+        .badge-user {
+            background: var(--milk-tea);
+            color: var(--espresso);
+        }
+
+        .status-active {
+            color: #1b5e20;
+            font-weight: 800;
+            background: #e8f5e9;
+            padding: 6px 14px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .dot-pulse {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        .btn-add-user {
+            background: var(--espresso);
+            color: var(--white) !important;
+            border-radius: 16px;
+            padding: 15px 30px;
+            font-weight: 800;
             border: none;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            box-shadow: 0 10px 20px rgba(45, 27, 20, 0.25);
+            transition: 0.3s;
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+        .btn-add-user:hover {
+            background: var(--caramel);
+            transform: translateY(-3px);
+        }
+
+        .btn-latte {
+            background: var(--espresso);
+            color: white;
+            font-weight: 800;
+            border-radius: 14px;
+            padding: 12px;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-latte:hover {
+            background: var(--caramel);
+            color: white;
+        }
+
+        .btn-action {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .btn-edit {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .btn-edit:hover {
+            background: #ef6c00;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-delete:hover {
+            background: #c62828;
+            color: white;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 2px solid #eeeae6;
+            font-weight: 600;
+        }
+
+        .form-control:focus {
+            border-color: var(--caramel);
+            box-shadow: none;
+        }
+
+        .modal-content {
+            border-radius: 28px;
+            border: none;
+            box-shadow: var(--shadow-bold);
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-lock-fill me-2"></i> LOGBOOK <span class="text-dark">SYSTEM</span></a>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="me-3 d-none d-md-block text-muted small">Halo, <b><?= $_SESSION['username'] ?></b></span>
-                <a href="logout.php" class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="bi bi-box-arrow-right me-1"></i> Logout</a>
+    <nav class="top-nav">
+        <a href="#" class="brand-logo">ACTIVITY <span>DIGITAL.</span></a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-end d-none d-md-block text-white">
+                <div style="font-size: 10px; font-weight: 800; color: var(--accent-gold); letter-spacing: 1px;">AUTHENTICATED ADMIN</div>
+                <div style="font-size: 15px; font-weight: 800;"><?= htmlspecialchars($_SESSION['username']) ?></div>
             </div>
+            <<a href="index.php?page=logout" class="btn-action btn-delete" onclick="return confirm('Apakah anda ingin logout?')">
+                <i class="bi bi-power"></i>
+            </a>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="fw-bold text-dark">User Management</h2>
-                <p class="text-muted">Kelola akses pengguna sistem di sini.</p>
+    <div class="main-container">
+
+        <div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+            <div class="header-title">
+                <h1>User Management</h1>
+                <p class="mb-0" style="color: var(--caramel); font-weight: 700;">Pengaturan akses sistem dan monitoring aktivitas pengguna.</p>
             </div>
-            <button class="btn btn-primary px-4 py-2 rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                <i class="bi bi-person-plus me-2"></i> Add New User
+            <button class="btn-add-user" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i class="bi bi-person-plus-fill me-2"></i> TAMBAH PENGGUNA
             </button>
         </div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3 text-primary"><i class="bi bi-people fs-3"></i></div>
-                        <div>
-                            <p class="text-muted mb-0">Total Users</p>
-                            <h3 class="fw-bold mb-0" id="total-users-count"><?= count($users) ?></h3>
-                        </div>
+        <div class="row mb-4">
+            <div class="col-md-auto">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                    <div>
+                        <div class="stat-label">Total Terdaftar</div>
+                        <div class="stat-value" id="total-users-count"><?= count($users) ?></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="table-container mb-5">
+        <div class="table-wrapper">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
+                            <th>User Profile</th>
+                            <th>Email Address</th>
+                            <th>Access Role</th>
                             <th>Status</th>
                             <th class="text-center">Action</th>
                         </tr>
@@ -144,25 +330,42 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
                     <tbody id="user-table-body">
                         <?php foreach ($users as $user): ?>
                             <tr>
-                                <td class="fw-bold"><?= htmlspecialchars($user['username']) ?></td>
-                                <td><?= htmlspecialchars($user['email']) ?></td>
-                                <td><span class="badge <?= $user['role'] === 'admin' ? 'bg-danger' : 'bg-info text-dark' ?> badge-role"><?= strtoupper($user['role']) ?></span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="width: 48px; height: 48px; border-radius: 16px; background: var(--espresso); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                                            <?= strtoupper(substr($user['username'], 0, 1)) ?>
+                                        </div>
+                                        <span style="font-weight: 800; font-size: 16px;"><?= htmlspecialchars($user['username']) ?></span>
+                                    </div>
+                                </td>
+                                <td style="color: var(--caramel); font-weight: 700;"><?= htmlspecialchars($user['email']) ?></td>
+                                <td>
+                                    <span class="role-badge <?= $user['role'] === 'admin' ? 'badge-admin' : 'badge-user' ?>">
+                                        <?= strtoupper($user['role']) ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <?php
                                     $isOnline = ($user['last_activity'] && strtotime($user['last_activity']) > time() - 60);
                                     if ($isOnline): ?>
-                                        <span class="text-success small fw-bold"><i class="bi bi-circle-fill me-1"></i> Online</span>
+                                        <div class="status-active">
+                                            <div class="dot-pulse"></div> Online
+                                        </div>
                                     <?php else: ?>
-                                        <span class="text-muted small">Offline</span>
+                                        <div class="text-muted small fw-bold"><i class="bi bi-clock-history me-1"></i> Offline</div>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-warning edit-user-btn" data-id="<?= $user['id_user'] ?>" data-username="<?= $user['username'] ?>" data-email="<?= $user['email'] ?>" data-role="<?= $user['role'] ?>"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(<?= $user['id_user'] ?>)">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
+                                    <button class="btn-action btn-edit edit-user-btn"
+                                        data-id="<?= $user['id_user'] ?>"
+                                        data-username="<?= $user['username'] ?>"
+                                        data-email="<?= $user['email'] ?>"
+                                        data-role="<?= $user['role'] ?>">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-delete ms-1" onclick="deleteUser(<?= $user['id_user'] ?>)">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -173,29 +376,38 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
     </div>
 
     <div class="modal fade" id="addUserModal" tabindex="-1">
-        <div class="modal-dialog">
-                <div class="modal-content card-custom">
-                	<form id="addUserForm">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-800" style="color: var(--espresso); font-size: 24px;">Buat Akun Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addUserForm">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    <div class="modal-header border-0">
-                        <h5 class="fw-bold">Tambah User Baru</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3"><label class="form-label">Username</label><input type="text" name="username" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Password</label><input type="password" name="password" class="form-control" required></div>
+                    <div class="modal-body p-4">
                         <div class="mb-3">
-                            <label class="form-label">Role</label>
+                            <label class="form-label small fw-bold">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Contoh: biya " required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="email@website.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Role Access</label>
                             <select name="role" class="form-select">
-                                <option value="-">-</option>
-                                <option value="user">Staff</option>
-                                <option value="admin">Admin</option>
+                                <option value="-"> - Silahkan Pilih Role -</option>
+                                <option value="user">User</option>
+                                <option value="admin">Administrator</option>
                             </select>
                         </div>
                     </div>
-                    <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-primary w-100">Simpan User</button>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn-latte w-100">SIMPAN PENGGUNA</button>
                     </div>
                 </form>
             </div>
@@ -203,29 +415,29 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
     </div>
 
     <div class="modal fade" id="editUserModal" tabindex="-1">
-        <div class="modal-dialog">
-                <div class="modal-content card-custom">
-                	<form id="editUserForm">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-800" style="color: var(--espresso); font-size: 24px;">Update Data User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editUserForm">
                     <input type="hidden" name="id_user" id="edit_id_user">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    <div class="modal-header border-0">
-                        <h5 class="fw-bold">Update User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3"><label class="form-label">Username</label><input type="text" name="username" id="edit_username" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" id="edit_email" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Password (Kosongkan jika tidak ganti)</label><input type="password" name="password" class="form-control"></div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3"><label class="form-label small fw-bold">Username</label><input type="text" name="username" id="edit_username" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label small fw-bold">Email Address</label><input type="email" name="email" id="edit_email" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label small fw-bold">Password (Kosongkan jika tidak diubah)</label><input type="password" name="password" class="form-control"></div>
                         <div class="mb-3">
-                            <label class="form-label">Role</label>
+                            <label class="form-label small fw-bold">Role Access</label>
                             <select name="role" id="edit_role" class="form-select">
-                                <option value="user">Staff</option>
-                                <option value="admin">Admin</option>
+                                <option value="user">User</option>
+                                <option value="admin">Administrator</option>
                             </select>
                         </div>
                     </div>
-                    <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-primary w-100">Update Data</button>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn-latte w-100">SIMPAN PERUBAHAN</button>
                     </div>
                 </form>
             </div>
@@ -234,9 +446,9 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function initEditButtons() {
-            const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token']) ?>';
+        const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token']) ?>';
 
+        function initEditButtons() {
             document.querySelectorAll('.edit-user-btn').forEach(btn => {
                 btn.onclick = function() {
                     document.getElementById('edit_id_user').value = this.dataset.id;
@@ -251,25 +463,20 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
         function refreshData() {
             const currentUrl = window.location.href;
             const updateUrl = currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'update_activity=1';
-
             fetch(updateUrl);
-
             fetch(currentUrl)
                 .then(res => res.text())
                 .then(html => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-
                     document.getElementById('user-table-body').innerHTML = doc.getElementById('user-table-body').innerHTML;
                     document.getElementById('total-users-count').innerText = doc.getElementById('total-users-count').innerText;
-
                     initEditButtons();
                 });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             initEditButtons();
-
             setInterval(refreshData, 5000);
 
             document.getElementById('addUserForm').onsubmit = function(e) {
@@ -299,7 +506,7 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
         });
 
         function deleteUser(id) {
-            if (confirm('Hapus user ini?')) {
+            if (confirm('Hapus pengguna ini?')) {
                 const fd = new FormData();
                 fd.append('csrf_token', csrfToken);
                 fetch('index.php?page=admin_dashboard&action=delete_user&id=' + id, {
