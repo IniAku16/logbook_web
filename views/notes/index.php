@@ -235,6 +235,104 @@
             background: #fff;
         }
 
+        .top-controls {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 0 1.5rem 1rem 1.5rem;
+        }
+
+        .pagination-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border-top: 1px solid #f1f1f1;
+            margin-top: 1.5rem;
+        }
+
+        .show-entries {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .show-entries select {
+            padding: 6px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            color: var(--primary-coffee);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .show-entries select:hover {
+            background: #f0f0f0;
+            border-color: var(--accent-gold);
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .pagination li {
+            margin: 0;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 35px;
+            height: 35px;
+            padding: 0 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            color: var(--primary-coffee);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .pagination a:hover {
+            background: #f0f0f0;
+            border-color: var(--accent-gold);
+        }
+
+        .pagination .active a {
+            background: var(--accent-gold);
+            color: var(--primary-coffee);
+            border-color: var(--accent-gold);
+        }
+
+        .pagination .disabled {
+            color: #ccc;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
         @media (max-width: 768px) {
             .page-header {
                 flex-direction: column;
@@ -243,6 +341,26 @@
 
             .btn-add {
                 width: 100%;
+            }
+
+            .pagination-wrapper {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .pagination {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .show-entries {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .pagination-info {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -282,15 +400,44 @@
             </button>
         </div>
         <div class="data-card">
-            <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+            <div class="d-flex justify-content-between align-items-center mb-4 px-2 flex-wrap gap-3">
                 <h6 class="fw-bold m-0"><i class="bi bi-list-task me-2"></i>Daftar Aktivitas Terkini</h6>
                 <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                    Total: <?= mysqli_num_rows($notes) ?> Data
+                    Total: <span id="totalCount"><?= mysqli_num_rows($notes) ?></span> Data
                 </span>
             </div>
 
+            <div class="mb-4 px-2">
+                <div class="input-group">
+                    <span class="input-group-text" style="background: #f0f0f0; border: 1px solid #e0e0e0;">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Cari aktivitas, area, kategori, status, atau material..." style="border: 1px solid #e0e0e0;">
+                    <button class="btn" id="clearSearch" type="button" style="background: #f0f0f0; border: 1px solid #e0e0e0; display: none;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="bi bi-info-circle me-1"></i>Tekan Enter atau ketik untuk mencari
+                </small>
+            </div>
+
+            <div class="top-controls" id="paginationWrapper" style="display: none;">
+                <div class="show-entries">
+                    <span>Tampilkan</span>
+                    <select id="entriesPerPage">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>data per halaman</span>
+                </div>
+            </div>
+
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="dataTable">
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
@@ -303,7 +450,7 @@
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableBody">
                         <?php
                         $no = 1;
                         if (mysqli_num_rows($notes) > 0):
@@ -314,8 +461,8 @@
                                 elseif ($target == 'Lanjut') $statusClass = 'status-proses';
                                 else $statusClass = 'status-menunggu';
                         ?>
-                                <tr>
-                                    <td class="text-center fw-bold text-muted"><?= $no++ ?></td>
+                                <tr class="data-row">
+                                    <td class="text-center fw-bold text-muted"><span class="row-number">1</span></td>
                                     <td>
                                         <div class="fw-bold"><?= date('d M Y', strtotime($note['date'])) ?></div>
                                         <div class="small text-muted text-uppercase"><?= date('l', strtotime($note['date'])) ?></div>
@@ -356,7 +503,7 @@
                                 </tr>
                             <?php endwhile;
                         else: ?>
-                            <tr>
+                            <tr class="no-data-row">
                                 <td colspan="8" class="text-center py-5">
                                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="mb-3 opacity-25">
                                     <p class="text-muted fw-semibold">Belum ada aktivitas yang tercatat hari ini.</p>
@@ -365,6 +512,10 @@
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+            <div class="pagination-wrapper" id="paginationWrapperBottom" style="display: none;">
+                <div class="pagination-info" id="paginationInfo"></div>
+                <ul class="pagination" id="paginationControls"></ul>
             </div>
         </div>
     </div>
@@ -490,6 +641,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        let allRows = [];
+        let filteredRows = [];
+        let currentPage = 1;
+        let entriesPerPage = 10;
+        let isSearching = false;
+
         document.addEventListener('DOMContentLoaded', function() {
             const shiftText = document.getElementById('shift-text');
             const now = new Date().getHours();
@@ -497,6 +654,177 @@
             else if (now >= 11 && now < 15) shiftText.innerHTML = '<i class="bi bi-sun-fill me-2 text-danger"></i>AFTERNOON';
             else if (now >= 15 && now < 19) shiftText.innerHTML = '<i class="bi bi-cloud-sun me-2 text-primary"></i>EVENING';
             else shiftText.innerHTML = '<i class="bi bi-moon-stars-fill me-2 text-indigo"></i>NIGHT SHIFT';
+
+            const tableBody = document.getElementById('tableBody');
+            allRows = Array.from(tableBody.querySelectorAll('tr.data-row'));
+            filteredRows = [...allRows];
+            
+            if (allRows.length > 0) {
+                showPagination();
+                updatePagination();
+            }
+        });
+
+        function showPagination() {
+            const paginationWrapper = document.getElementById('paginationWrapper');
+            const paginationWrapperBottom = document.getElementById('paginationWrapperBottom');
+            const show = filteredRows.length > 0 ? 'flex' : 'none';
+            paginationWrapper.style.display = show;
+            paginationWrapperBottom.style.display = show;
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredRows.length / entriesPerPage);
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
+
+            displayPageRows();
+            renderPaginationControls(totalPages);
+            updatePaginationInfo(totalPages);
+        }
+
+        function displayPageRows() {
+            const start = (currentPage - 1) * entriesPerPage;
+            const end = start + entriesPerPage;
+            const visibleRows = filteredRows.slice(start, end);
+
+            allRows.forEach(row => row.style.display = 'none');
+
+            visibleRows.forEach((row, index) => {
+                row.style.display = '';
+                row.querySelector('.row-number').textContent = start + index + 1;
+            });
+        }
+
+        function renderPaginationControls(totalPages) {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            const prevLi = document.createElement('li');
+            prevLi.className = currentPage === 1 ? 'disabled' : '';
+            prevLi.innerHTML = `<a href="#" onclick="goToPage(${currentPage - 1}, event)"><i class="bi bi-chevron-left"></i></a>`;
+            paginationControls.appendChild(prevLi);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                const firstLi = document.createElement('li');
+                firstLi.innerHTML = `<a href="#" onclick="goToPage(1, event)">1</a>`;
+                paginationControls.appendChild(firstLi);
+
+                if (startPage > 2) {
+                    const dotsLi = document.createElement('li');
+                    dotsLi.innerHTML = `<span>...</span>`;
+                    paginationControls.appendChild(dotsLi);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const li = document.createElement('li');
+                li.className = i === currentPage ? 'active' : '';
+                li.innerHTML = `<a href="#" onclick="goToPage(${i}, event)">${i}</a>`;
+                paginationControls.appendChild(li);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dotsLi = document.createElement('li');
+                    dotsLi.innerHTML = `<span>...</span>`;
+                    paginationControls.appendChild(dotsLi);
+                }
+
+                const lastLi = document.createElement('li');
+                lastLi.innerHTML = `<a href="#" onclick="goToPage(${totalPages}, event)">${totalPages}</a>`;
+                paginationControls.appendChild(lastLi);
+            }
+
+            const nextLi = document.createElement('li');
+            nextLi.className = currentPage === totalPages ? 'disabled' : '';
+            nextLi.innerHTML = `<a href="#" onclick="goToPage(${currentPage + 1}, event)"><i class="bi bi-chevron-right"></i></a>`;
+            paginationControls.appendChild(nextLi);
+        }
+
+        function updatePaginationInfo(totalPages) {
+            const paginationInfo = document.getElementById('paginationInfo');
+            const start = (currentPage - 1) * entriesPerPage + 1;
+            const end = Math.min(currentPage * entriesPerPage, filteredRows.length);
+            paginationInfo.textContent = `Menampilkan ${filteredRows.length > 0 ? start : 0} sampai ${end} dari ${filteredRows.length} data`;
+        }
+
+        function goToPage(page, event) {
+            event.preventDefault();
+            const totalPages = Math.ceil(filteredRows.length / entriesPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                updatePagination();
+                document.querySelector('.table-responsive').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        document.getElementById('entriesPerPage').addEventListener('change', function() {
+            entriesPerPage = parseInt(this.value);
+            currentPage = 1;
+            updatePagination();
+        });
+
+        const searchInput = document.getElementById('searchInput');
+        const clearButton = document.getElementById('clearSearch');
+        const totalCount = document.getElementById('totalCount');
+
+        searchInput.addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            isSearching = searchValue.length > 0;
+
+            if (isSearching) {
+                filteredRows = allRows.filter(row => {
+                    return row.textContent.toLowerCase().includes(searchValue);
+                });
+            } else {
+                filteredRows = [...allRows];
+            }
+
+            currentPage = 1;
+            totalCount.textContent = filteredRows.length;
+            clearButton.style.display = searchValue ? 'block' : 'none';
+
+            if (filteredRows.length === 0) {
+                const noResultsRow = allRows.find(row => row.classList.contains('no-data-row'));
+                if (!noResultsRow) {
+                    const tableBody = document.getElementById('tableBody');
+                    const noDataRow = document.createElement('tr');
+                    noDataRow.className = 'no-data-row';
+                    noDataRow.innerHTML = `
+                        <td colspan="8" class="text-center py-5">
+                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="mb-3 opacity-25">
+                            <p class="text-muted fw-semibold">Tidak ada hasil pencarian.</p>
+                        </td>
+                    `;
+                    tableBody.appendChild(noDataRow);
+                }
+                showPagination();
+            } else {
+                const noResultsRow = document.querySelector('tr.no-data-row');
+                if (noResultsRow) {
+                    noResultsRow.remove();
+                }
+            }
+
+            updatePagination();
+        });
+
+        clearButton.addEventListener('click', function() {
+            searchInput.value = '';
+            clearButton.style.display = 'none';
+            filteredRows = [...allRows];
+            isSearching = false;
+            currentPage = 1;
+            totalCount.textContent = allRows.length;
+            updatePagination();
         });
 
         document.querySelectorAll('.btn-edit-trigger').forEach(button => {
