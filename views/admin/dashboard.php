@@ -287,7 +287,7 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
             </div>
             <<a href="index.php?page=logout" class="btn-action btn-delete" onclick="return confirm('Apakah anda ingin logout?')">
                 <i class="bi bi-power"></i>
-            </a>
+                </a>
         </div>
     </nav>
 
@@ -301,6 +301,17 @@ if (isset($_SESSION['id_user']) && isset($_GET['update_activity'])) {
             <button class="btn-add-user" data-bs-toggle="modal" data-bs-target="#addUserModal">
                 <i class="bi bi-person-plus-fill me-2"></i> TAMBAH PENGGUNA
             </button>
+        </div>
+
+        <div class="container mt-4">
+            <div class="d-flex gap-2">
+                <a href="index.php?page=admin_dashboard" class="btn <?= !isset($_GET['action']) || $_GET['action'] == 'index' ? 'btn-latte' : 'btn-outline-dark' ?> shadow-sm">
+                    <i class="bi bi-people me-2"></i> User Management
+                </a>
+                <a href="index.php?page=admin_dashboard&action=monitoring" class="btn <?= $_GET['action'] == 'monitoring' ? 'btn-latte' : 'btn-outline-dark' ?> shadow-sm">
+                    <i class="bi bi-graph-up-arrow me-2"></i> Monitoring Aktivitas
+                </a>
+            </div>
         </div>
 
         <div class="row mb-4">

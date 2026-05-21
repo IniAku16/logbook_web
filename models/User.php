@@ -148,4 +148,35 @@ class UserModel
         $stmt->bind_param("i", $id_user);
         return $stmt->execute();
     }
+
+    public function getUsersWithStats()
+    {
+        $sql = "SELECT u.id_user, u.username, u.email, u.role, u.last_activity,
+            COUNT(n.id) as total_aktivitas,
+            MAX(n.date) as aktivitas_terakhir
+            FROM users u 
+            LEFT JOIN notes n ON u.id_user = n.user_id 
+            GROUP BY u.id_user";
+        return mysqli_query($this->db, $sql);
+    }
+
+    public function getTotalSystemActivities()
+    {
+        $sql = "SELECT COUNT(*) as total FROM notes";
+        $result = mysqli_query($this->db, $sql);
+        return $result->fetch_assoc()['total'];
+    }
+
+    public function getUserActivityDetail($id_user)
+    {
+        $sql = "SELECT n.*, a.nama_area 
+            FROM notes n 
+            JOIN tb_area a ON n.id_area = a.id_area 
+            WHERE n.user_id = ? 
+            ORDER BY n.date DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id_user);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
 }

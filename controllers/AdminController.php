@@ -118,4 +118,25 @@ class AdminController
         echo json_encode(['status' => $res ? 'success' : 'error', 'message' => $res ? 'User berhasil dihapus' : 'Gagal hapus user']);
         exit();
     }
+
+    public function monitoring()
+    {
+        $usersStats = $this->userModel->getUsersWithStats();
+        $totalAktivitas = $this->userModel->getTotalSystemActivities();
+
+        $stats = [];
+        while ($row = $usersStats->fetch_assoc()) {
+            $stats[] = $row;
+        }
+
+        include __DIR__ . "/../views/admin/monitoring.php";
+    }
+
+    public function detail_user($id)
+    {
+        $user = $this->userModel->getUserById($id); 
+        $activities = $this->userModel->getUserActivityDetail($id);
+
+        include __DIR__ . "/../views/admin/user_detail.php";
+    }
 }

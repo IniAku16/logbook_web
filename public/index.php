@@ -127,30 +127,51 @@ $action = $_GET['action'] ?? 'index';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 if ($page === 'admin_dashboard') {
-    
+
     require_once __DIR__ . "/../controllers/AdminController.php";
     $adminCtrl = new AdminController($koneksi);
 
     switch ($action) {
-        case 'add_user':    $adminCtrl->create(); break;
-        case 'edit_user':   $adminCtrl->update($id); break;
-        case 'delete_user': $adminCtrl->delete($id); break;
-        default:            $adminCtrl->index(); break;
+        case 'add_user':
+            $adminCtrl->create();
+            break;
+        case 'edit_user':
+            $adminCtrl->update($id);
+            break;
+        case 'delete_user':
+            $adminCtrl->delete($id);
+            break;
+        case 'monitoring':
+            $adminCtrl->monitoring();
+            break;
+        case 'user_detail':
+            $adminCtrl->detail_user($id);
+            break;
+        default:
+            $adminCtrl->index();
+            break;
     }
-
 } elseif ($page === 'user_dashboard') {
 
     require_once __DIR__ . "/../controllers/NotesController.php";
     $notesController = new NotesController($koneksi);
 
-    $allowed_actions = ['create', 'update', 'delete'/*, 'exportExcel', 'importExcel', 'history', 'history-detail', 'history-pdf'*/, 'index'];
-    
+    $allowed_actions = ['create', 'update', 'delete', 'index'];
+
     if (in_array($action, $allowed_actions, true)) {
         switch ($action) {
-            case 'create': $notesController->create(); break;
-            case 'update': $notesController->update($id); break;
-            case 'delete': $notesController->delete($id); break;
-            default: $notesController->index(); break;
+            case 'create':
+                $notesController->create();
+                break;
+            case 'update':
+                $notesController->update($id);
+                break;
+            case 'delete':
+                $notesController->delete($id);
+                break;
+            default:
+                $notesController->index();
+                break;
         }
     } else {
         $notesController->index();
