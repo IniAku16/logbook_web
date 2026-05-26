@@ -4,45 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Digital</title>
+    <title>Activity Digital | Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-body: #f8f9fa;
+            --bg-body: #fcfbfa;
             --primary-coffee: #2d1b14;
-            --accent-gold: #c6a664;
-            --soft-cream: #fdfaf7;
-            --text-muted: #6c757d;
+            --deep-coffee: #4a2c1b;
+            --accent-gold: #b8860b;
+            --soft-gold: #fdf5e6;
+            --primary-gradient: linear-gradient(135deg, #4a2c1b 0%, #b8860b 100%);
+            --text-dark: #2d1b14;
+            --text-muted: #7d6b63;
             --white: #ffffff;
-            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 10px 30px rgba(45, 27, 20, 0.08);
+            --input-border: #e2d9d5;
+            --shadow-sm: 0 5px 15px rgba(74, 44, 27, 0.05);
+            --shadow-md: 0 15px 35px rgba(74, 44, 27, 0.08);
+            --shadow-bold: 0 20px 40px -5px rgba(74, 44, 27, 0.12);
         }
 
         body {
             background-color: var(--bg-body);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--primary-coffee);
+            color: var(--text-dark);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .navbar-custom {
             background: var(--primary-coffee);
-            padding: 1.5rem 0 5rem 0;
-            margin-bottom: -4rem;
+            padding: 1rem 0 4rem 0;
+            margin-bottom: -3.5rem;
+            border-bottom: 4px solid var(--accent-gold);
         }
 
         .brand-logo {
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: var(--white);
             text-decoration: none;
             letter-spacing: -0.5px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .brand-logo span {
@@ -50,30 +57,37 @@
         }
 
         .btn-logout {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            padding: 8px 15px;
-            border-radius: 12px;
-            transition: all 0.3s;
+            padding: 8px 18px;
+            border-radius: 10px;
+            transition: 0.3s;
             text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .btn-logout:hover {
-            background: #dc3545;
+            background: #e63946;
+            border-color: #e63946;
             color: white;
+            transform: translateY(-2px);
         }
 
         .content-wrapper {
             position: relative;
             z-index: 10;
+            padding-bottom: 60px;
         }
 
         .page-header {
             background: var(--white);
             padding: 2rem;
-            border-radius: 24px;
+            border-radius: 20px;
             box-shadow: var(--shadow-md);
-            margin-bottom: 2rem;
+            border: 1px solid rgba(74, 44, 27, 0.05);
+            margin-bottom: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -84,49 +98,121 @@
         .welcome-msg h2 {
             font-weight: 800;
             font-size: 24px;
+            color: var(--deep-coffee);
             margin: 0;
-            color: var(--primary-coffee);
         }
 
         .welcome-msg p {
             margin: 0;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 14px;
         }
 
         .data-card {
             background: var(--white);
             border-radius: 24px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-            border: none;
+            padding: 0;
+            box-shadow: var(--shadow-bold);
+            border: 1px solid rgba(74, 44, 27, 0.05);
+            overflow: hidden;
         }
 
-        .table-responsive {
-            border-radius: 15px;
+        .filter-section {
+            padding: 1.5rem 2rem;
+            background: #fdfaf8;
+            border-bottom: 1px solid #f1ece9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box .form-control {
+            border: 2px solid var(--input-border);
+            border-radius: 12px;
+            padding: 10px 15px 10px 45px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box .form-control:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.1);
+        }
+
+        .entries-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .entries-control select {
+            border: 2px solid var(--input-border);
+            border-radius: 10px;
+            padding: 5px 10px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .table-container {
+            padding: 0 1rem;
         }
 
         .table thead th {
-            background: #fafafa;
+            background: transparent;
             color: var(--text-muted);
             font-weight: 700;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 15px;
-            border-bottom: 2px solid #f1f1f1;
+            padding: 20px 15px;
+            border-bottom: 2px solid #f1ece9;
         }
 
         .table tbody td {
-            padding: 15px;
+            padding: 18px 15px;
             vertical-align: middle;
             font-size: 14px;
-            border-bottom: 1px solid #f8f9fa;
+            font-weight: 600;
+            border-bottom: 1px solid #f8f5f2;
+        }
+
+        .row-number {
+            width: 30px;
+            height: 30px;
+            background: var(--soft-gold);
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
         }
 
         .badge-area {
-            background: #f0f0f0;
-            color: var(--primary-coffee);
+            background: #f0f4f8;
+            color: #475569;
             padding: 5px 12px;
             border-radius: 8px;
             font-weight: 700;
@@ -136,84 +222,140 @@
         .status-pill {
             padding: 6px 14px;
             border-radius: 10px;
-            font-weight: 700;
-            font-size: 11px;
+            font-weight: 800;
+            font-size: 10px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status-selesai {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #dcfce7;
+            color: #15803d;
         }
 
         .status-proses {
-            background: #fff3e0;
-            color: #ef6c00;
+            background: #fef9c3;
+            color: #a16207;
         }
 
         .status-menunggu {
-            background: #f5f5f5;
-            color: #757575;
+            background: #f1f5f9;
+            color: #475569;
         }
 
-        .btn-add {
-            background: var(--accent-gold);
-            color: var(--primary-coffee);
+        .pagination-footer {
+            padding: 1.5rem 2rem;
+            background: #fdfaf8;
+            border-top: 1px solid #f1ece9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
             font-weight: 700;
-            padding: 12px 24px;
-            border-radius: 14px;
-            border: none;
-            transition: 0.3s;
+            font-size: 13px;
+            color: var(--text-muted);
         }
 
-        .btn-add:hover {
-            background: var(--primary-coffee);
-            color: white;
+        .pagination {
+            gap: 5px;
+            margin: 0;
+        }
+
+        .pagination a,
+        .pagination span {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 2px solid var(--input-border);
+            background: white;
+            color: var(--deep-coffee);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .pagination a:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
             transform: translateY(-2px);
         }
 
+        .pagination .active a {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(74, 44, 27, 0.2);
+        }
+
+        .btn-add {
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 800;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(74, 44, 27, 0.15);
+            transition: 0.3s;
+            font-size: 13px;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            color: white;
+        }
+
         .action-btn {
-            width: 35px;
-            height: 35px;
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px;
             transition: 0.2s;
             border: none;
             text-decoration: none;
         }
 
         .btn-edit {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .btn-delete {
-            background: #ffebee;
-            color: #c62828;
+            background: #fef3c7;
+            color: #d97706;
         }
 
         .btn-edit:hover {
-            background: #1976d2;
+            background: #d97706;
             color: white;
         }
 
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
         .btn-delete:hover {
-            background: #c62828;
+            background: #dc2626;
             color: white;
         }
 
         .modal-content {
-            border-radius: 24px;
+            border-radius: 20px;
             border: none;
-            overflow: hidden;
+            box-shadow: var(--shadow-bold);
         }
 
         .modal-header {
             background: var(--primary-coffee);
             color: white;
-            border: none;
+            border-radius: 20px 20px 0 0;
             padding: 20px 30px;
         }
 
@@ -221,145 +363,14 @@
             padding: 30px;
         }
 
-        .form-control,
-        .form-select {
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            background-color: #fcfcfc;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent-gold);
-            box-shadow: none;
-            background: #fff;
-        }
-
-        .top-controls {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            padding: 0 1.5rem 1rem 1.5rem;
-        }
-
-        .pagination-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            border-top: 1px solid #f1f1f1;
-            margin-top: 1.5rem;
-        }
-
-        .show-entries {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .show-entries select {
-            padding: 6px 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background: #f9f9f9;
-            color: var(--primary-coffee);
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .show-entries select:hover {
-            background: #f0f0f0;
-            border-color: var(--accent-gold);
-        }
-
-        .pagination {
-            display: flex;
-            gap: 0.5rem;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .pagination li {
-            margin: 0;
-        }
-
-        .pagination a,
-        .pagination span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 35px;
-            height: 35px;
-            padding: 0 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            color: var(--primary-coffee);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 12px;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-
-        .pagination a:hover {
-            background: #f0f0f0;
-            border-color: var(--accent-gold);
-        }
-
-        .pagination .active a {
-            background: var(--accent-gold);
-            color: var(--primary-coffee);
-            border-color: var(--accent-gold);
-        }
-
-        .pagination .disabled {
-            color: #ccc;
-            pointer-events: none;
-            cursor: not-allowed;
-        }
-
-        .pagination-info {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
         @media (max-width: 768px) {
-            .page-header {
+            .filter-section {
                 flex-direction: column;
-                text-align: center;
+                align-items: stretch;
             }
 
-            .btn-add {
-                width: 100%;
-            }
-
-            .pagination-wrapper {
+            .pagination-footer {
                 flex-direction: column;
-                gap: 1rem;
-            }
-
-            .pagination {
-                justify-content: center;
-                width: 100%;
-            }
-
-            .show-entries {
-                justify-content: center;
-                width: 100%;
-            }
-
-            .pagination-info {
-                width: 100%;
                 text-align: center;
             }
         }
@@ -376,13 +387,12 @@
                     Activity<span>Digital.</span>
                 </a>
                 <div class="d-flex align-items-center gap-3">
-                    <span class="text-white fw-medium d-none d-md-block">
-                        <i class="bi bi-person-circle me-1 text-accent-gold"></i>
-                        <?= htmlspecialchars($_SESSION['username']) ?>
-                    </span>
-
-                    <a href="index.php?page=logout" class="btn-logout" onclick="return confirm('Apakah anda ingin logout?')">
-                        <i class="bi bi-power me-2"></i>Logout
+                    <div class="text-white d-none d-md-block text-end">
+                        <small class="d-block opacity-50 fw-bold" style="font-size: 9px; letter-spacing: 1px;">SISTEM AKTIVITAS</small>
+                        <span class="fw-bold" style="font-size: 14px;"><?= htmlspecialchars($_SESSION['username']) ?></span>
+                    </div>
+                    <a href="index.php?page=logout" class="btn-logout" onclick="return confirm('Logout dari sistem?')">
+                        <i class="bi bi-box-arrow-right me-2"></i>LOGOUT
                     </a>
                 </div>
             </div>
@@ -393,93 +403,77 @@
         <div class="page-header">
             <div class="welcome-msg">
                 <h2 id="shift-text">LOADING...</h2>
-                <p>Selamat Datang, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong> | Digital Activity System</p>
+                <p>Monitor dan catat aktivitas harian Anda dengan mudah.</p>
             </div>
-            <button class="btn-add" data-bs-toggle="modal" data-bs-target="#createNoteModal">
-                <i class="bi bi-plus-lg me-2"></i>TAMBAH ACTIVITY BARU
-            </button>
+            <div class="d-flex gap-2">
+                <a href="index.php?page=user_dashboard&action=export_excel" class="btn btn-light border fw-bold rounded-pill px-3" style="font-size: 12px;">
+                    <i class="bi bi-file-earmark-excel text-success me-1"></i> EXCEL
+                </a>
+                <a href="index.php?page=user_dashboard&action=export_pdf" class="btn btn-light border fw-bold rounded-pill px-3" style="font-size: 12px;">
+                    <i class="bi bi-file-earmark-pdf text-danger me-1"></i> PDF
+                </a>
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#createNoteModal">
+                    <i class="bi bi-plus-lg me-2"></i>TAMBAH ACTIVITY
+                </button>
+            </div>
         </div>
+
         <div class="data-card">
-            <div class="d-flex justify-content-between align-items-center mb-4 px-2 flex-wrap gap-3">
-                <h6 class="fw-bold m-0"><i class="bi bi-list-task me-2"></i>Daftar Aktivitas Terkini</h6>
-                <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                    Total: <span id="totalCount"><?= mysqli_num_rows($notes) ?></span> Data
-                </span>
-            </div>
-
-            <div class="mb-4 px-2">
-                <div class="input-group">
-                    <span class="input-group-text" style="background: #f0f0f0; border: 1px solid #e0e0e0;">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Cari aktivitas, area, kategori, status, atau material..." style="border: 1px solid #e0e0e0;">
-                    <button class="btn" id="clearSearch" type="button" style="background: #f0f0f0; border: 1px solid #e0e0e0; display: none;">
-                        <i class="bi bi-x"></i>
-                    </button>
+            <div class="filter-section">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Cari aktivitas, area, material, atau status...">
+                    <button id="clearSearch" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); border:none; background:none; color:gray;"><i class="bi bi-x-circle"></i></button>
                 </div>
-                <small class="text-muted d-block mt-2">
-                    <i class="bi bi-info-circle me-1"></i>Tekan Enter atau ketik untuk mencari
-                </small>
-            </div>
 
-            <div class="top-controls" id="paginationWrapper" style="display: none;">
-                <div class="show-entries">
+                <div class="entries-control">
                     <span>Tampilkan</span>
                     <select id="entriesPerPage">
                         <option value="5">5</option>
                         <option value="10" selected>10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
-                        <option value="100">100</option>
                     </select>
                     <span>data per halaman</span>
                 </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="table-container table-responsive">
                 <table class="table table-hover" id="dataTable">
                     <thead>
                         <tr>
-                            <th class="text-center">No</th>
-                            <th>Tanggal & Hari</th>
-                            <th width="30%">Kegiatan</th>
+                            <th class="text-center">#</th>
+                            <th>Waktu & Hari</th>
+                            <th width="35%">Kegiatan / Aktivitas</th>
                             <th>Area</th>
-                            <th>Klasifikasi</th>
+                            <th>Kategori</th>
                             <th>Status</th>
-                            <th>Material</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <?php
-                        $no = 1;
                         if (mysqli_num_rows($notes) > 0):
+                            $no = 1;
                             while ($note = mysqli_fetch_assoc($notes)):
                                 $target = $note['target'];
-                                $statusClass = '';
-                                if ($target == 'Selesai') $statusClass = 'status-selesai';
-                                elseif ($target == 'Lanjut') $statusClass = 'status-proses';
-                                else $statusClass = 'status-menunggu';
+                                $statusClass = ($target == 'Selesai') ? 'status-selesai' : (($target == 'Lanjut') ? 'status-proses' : 'status-menunggu');
                         ?>
                                 <tr class="data-row">
-                                    <td class="text-center fw-bold text-muted"><span class="row-number">1</span></td>
+                                    <td class="text-center"><span class="row-number"><?= $no++ ?></span></td>
                                     <td>
-                                        <div class="fw-bold"><?= date('d M Y', strtotime($note['date'])) ?></div>
-                                        <div class="small text-muted text-uppercase"><?= date('l', strtotime($note['date'])) ?></div>
+                                        <div class="text-dark fw-800"><?= date('d M Y', strtotime($note['date'])) ?></div>
+                                        <div class="small text-muted fw-bold text-uppercase" style="font-size: 10px;"><?= date('l', strtotime($note['date'])) ?></div>
                                     </td>
                                     <td>
-                                        <div class="fw-semibold"><?= htmlspecialchars($note['description']) ?></div>
-                                    </td>
-                                    <td><span class="badge-area"><?= htmlspecialchars($note['nama_area'] ?? 'N/A') ?></span></td>
-                                    <td><span class="small fw-bold text-muted text-uppercase"><?= htmlspecialchars($note['jenis']) ?></span></td>
-                                    <td>
-                                        <span class="status-pill <?= $statusClass ?>"><?= $target ?></span>
-                                    </td>
-                                    <td>
-                                        <div class="small fw-semibold">
-                                            <i class="bi bi-box-seam me-1"></i><?= htmlspecialchars($note['material']) ?>
+                                        <div class="fw-bold text-dark mb-1"><?= htmlspecialchars($note['description']) ?></div>
+                                        <div class="small text-muted fw-semibold">
+                                            <i class="bi bi-tools me-1"></i><?= htmlspecialchars($note['material']) ?>
                                         </div>
                                     </td>
+                                    <td><span class="badge-area"><?= htmlspecialchars($note['nama_area'] ?? 'N/A') ?></span></td>
+                                    <td><span class="small fw-800 text-muted"><?= htmlspecialchars($note['jenis']) ?></span></td>
+                                    <td><span class="status-pill <?= $statusClass ?>"><?= $target ?></span></td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
                                             <button class="action-btn btn-edit btn-edit-trigger"
@@ -491,31 +485,32 @@
                                                 data-target="<?= $note['target'] ?>"
                                                 data-material="<?= htmlspecialchars($note['material'], ENT_QUOTES) ?>"
                                                 data-bs-toggle="modal" data-bs-target="#editNoteModal">
-                                                <i class="bi bi-pencil-square"></i>
+                                                <i class="bi bi-pencil-fill"></i>
                                             </button>
-                                            <a href="?page=user_dashboard&action=delete&id=<?= $note['id'] ?>"
-                                                class="action-btn btn-delete"
-                                                onclick="return confirm('Hapus data Activity ini?')">
-                                                <i class="bi bi-trash"></i>
+                                            <a href="?page=user_dashboard&action=delete&id=<?= $note['id'] ?>" class="action-btn btn-delete" onclick="return confirm('Hapus aktivitas ini?')">
+                                                <i class="bi bi-trash3-fill"></i>
                                             </a>
                                         </div>
                                     </td>
                                 </tr>
                             <?php endwhile;
                         else: ?>
-                            <tr class="no-data-row">
-                                <td colspan="8" class="text-center py-5">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="mb-3 opacity-25">
-                                    <p class="text-muted fw-semibold">Belum ada aktivitas yang tercatat hari ini.</p>
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="text-muted fw-bold">Tidak ada data aktivitas ditemukan.</div>
                                 </td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            <div class="pagination-wrapper" id="paginationWrapperBottom" style="display: none;">
-                <div class="pagination-info" id="paginationInfo"></div>
-                <ul class="pagination" id="paginationControls"></ul>
+
+            <div class="pagination-footer" id="paginationWrapperBottom">
+                <div class="pagination-info" id="paginationInfo">
+                    Menampilkan <span id="startRange">0</span> sampai <span id="endRange">0</span> dari <span id="totalCount">0</span> data
+                </div>
+                <ul class="pagination" id="paginationControls">
+                </ul>
             </div>
         </div>
     </div>
@@ -525,19 +520,19 @@
             <form action="?page=user_dashboard&action=create" method="POST" class="modal-content">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <div class="modal-header">
-                    <h5 class="fw-bold m-0">Entry Activity Baru</h5>
+                    <h5 class="fw-800 m-0">Input Aktivitas Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Tanggal Aktivitas</label>
-                            <input type="date" name="date" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
+                            <label class="form-label fw-bold small text-muted">TANGGAL</label>
+                            <input type="date" name="date" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Area Kerja</label>
+                            <label class="form-label fw-bold small text-muted">AREA KERJA</label>
                             <select name="id_area" class="form-select" required>
-                                <option value="">Pilih Lokasi...</option>
+                                <option value="">Pilih Area...</option>
                                 <?php mysqli_data_seek($areas, 0);
                                 while ($a = mysqli_fetch_assoc($areas)): ?>
                                     <option value="<?= $a['id_area'] ?>"><?= $a['nama_area'] ?></option>
@@ -545,13 +540,12 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Deskripsi Pekerjaan</label>
-                            <textarea name="description" class="form-control" rows="3" placeholder="Apa yang anda kerjakan?" required></textarea>
+                            <label class="form-label fw-bold small text-muted">DESKRIPSI PEKERJAAN</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Apa yang Anda kerjakan?" required></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Kategori</label>
+                            <label class="form-label fw-bold small text-muted">KATEGORI</label>
                             <select name="jenis" class="form-select" required>
-                                <option value="-">-Pilih Kategori-</option>
                                 <option value="Check List-Routine">Routine Check</option>
                                 <option value="Complain">Complain</option>
                                 <option value="Perbaikan/Perawatan">Maintenance</option>
@@ -559,22 +553,19 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Status Target</label>
+                            <label class="form-label fw-bold small text-muted">STATUS</label>
                             <select name="target" class="form-select" required>
-                                <option value="-">-Pilih Status-</option>
                                 <option value="Menunggu Proses">Menunggu</option>
-                                <option value="Lanjut">Dalam Proses</option>
+                                <option value="Lanjut">Proses</option>
                                 <option value="Selesai">Selesai</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Material / Suku Cadang</label>
-                            <input type="text" name="material" class="form-control" placeholder="Contoh: Baut M6, Kabel, dsb." required>
+                            <label class="form-label fw-bold small text-muted">MATERIAL / SPAREPART</label>
+                            <input type="text" name="material" class="form-control" placeholder="Contoh: Kabel, Lampu, Baut..." required>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn-add w-100">SIMPAN ACTIVITY</button>
+                    <button type="submit" class="btn-add w-100 mt-4 py-3">SIMPAN AKTIVITAS</button>
                 </div>
             </form>
         </div>
@@ -584,18 +575,18 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <form id="formEdit" method="POST" class="modal-content">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <div class="modal-header">
-                    <h5 class="fw-bold m-0">Update Data Activity</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header" style="background: var(--accent-gold);">
+                    <h5 class="fw-800 m-0 text-dark">Update Aktivitas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Tanggal</label>
-                            <input type="date" name="date" id="edit_date" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
+                            <label class="form-label fw-bold small text-muted">TANGGAL</label>
+                            <input type="date" name="date" id="edit_date" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Area</label>
+                            <label class="form-label fw-bold small text-muted">AREA</label>
                             <select name="id_area" id="edit_area" class="form-select" required>
                                 <?php mysqli_data_seek($areas, 0);
                                 while ($a = mysqli_fetch_assoc($areas)): ?>
@@ -604,13 +595,12 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Deskripsi</label>
+                            <label class="form-label fw-bold small text-muted">DESKRIPSI</label>
                             <textarea name="description" id="edit_desc" class="form-control" rows="3" required></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Jenis</label>
+                            <label class="form-label fw-bold small text-muted">JENIS</label>
                             <select name="jenis" id="edit_jenis" class="form-select" required>
-                                <option value="-">-Pilih Kategori-</option>
                                 <option value="Check List-Routine">Routine Check</option>
                                 <option value="Complain">Complain</option>
                                 <option value="Perbaikan/Perawatan">Maintenance</option>
@@ -618,22 +608,19 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Status</label>
+                            <label class="form-label fw-bold small text-muted">STATUS</label>
                             <select name="target" id="edit_target" class="form-select" required>
-                                <option value="-">-Pilih Status-</option>
                                 <option value="Menunggu Proses">Menunggu</option>
-                                <option value="Lanjut">Dalam Proses</option>
+                                <option value="Lanjut">Proses</option>
                                 <option value="Selesai">Selesai</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Material</label>
+                            <label class="form-label fw-bold small text-muted">MATERIAL</label>
                             <input type="text" name="material" id="edit_material" class="form-control" required>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn-add w-100">UPDATE PERUBAHAN</button>
+                    <button type="submit" class="btn-add w-100 mt-4 py-3">SIMPAN PERUBAHAN</button>
                 </div>
             </form>
         </div>
@@ -645,7 +632,6 @@
         let filteredRows = [];
         let currentPage = 1;
         let entriesPerPage = 10;
-        let isSearching = false;
 
         document.addEventListener('DOMContentLoaded', function() {
             const shiftText = document.getElementById('shift-text');
@@ -658,31 +644,55 @@
             const tableBody = document.getElementById('tableBody');
             allRows = Array.from(tableBody.querySelectorAll('tr.data-row'));
             filteredRows = [...allRows];
-            
-            if (allRows.length > 0) {
-                showPagination();
-                updatePagination();
-            }
-        });
 
-        function showPagination() {
-            const paginationWrapper = document.getElementById('paginationWrapper');
-            const paginationWrapperBottom = document.getElementById('paginationWrapperBottom');
-            const show = filteredRows.length > 0 ? 'flex' : 'none';
-            paginationWrapper.style.display = show;
-            paginationWrapperBottom.style.display = show;
-        }
+            updatePagination();
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const searchValue = this.value.toLowerCase();
+
+                filteredRows = allRows.filter(row => {
+                    return row.textContent.toLowerCase().includes(searchValue);
+                });
+
+                currentPage = 1;
+                updatePagination();
+
+                const existingNoData = tableBody.querySelector('.no-data-row');
+                if (filteredRows.length === 0) {
+                    if (!existingNoData) {
+                        const noDataRow = document.createElement('tr');
+                        noDataRow.className = 'no-data-row';
+                        noDataRow.innerHTML = `<td colspan="7" class="text-center py-5"><p class="text-muted fw-bold">Data tidak ditemukan.</p></td>`;
+                        tableBody.appendChild(noDataRow);
+                    }
+                } else if (existingNoData) {
+                    existingNoData.remove();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-edit-trigger');
+                if (btn) {
+                    const id = btn.getAttribute('data-id');
+                    document.getElementById('formEdit').action = `?page=user_dashboard&action=update&id=${id}`;
+                    document.getElementById('edit_date').value = btn.getAttribute('data-date');
+                    document.getElementById('edit_desc').value = btn.getAttribute('data-desc');
+                    document.getElementById('edit_area').value = btn.getAttribute('data-area');
+                    document.getElementById('edit_jenis').value = btn.getAttribute('data-jenis');
+                    document.getElementById('edit_target').value = btn.getAttribute('data-target');
+                    document.getElementById('edit_material').value = btn.getAttribute('data-material');
+                }
+            });
+        });
 
         function updatePagination() {
             const totalPages = Math.ceil(filteredRows.length / entriesPerPage);
-
-            if (currentPage > totalPages) {
-                currentPage = totalPages || 1;
-            }
+            if (currentPage > totalPages) currentPage = totalPages || 1;
 
             displayPageRows();
             renderPaginationControls(totalPages);
-            updatePaginationInfo(totalPages);
+            updatePaginationInfo();
         }
 
         function displayPageRows() {
@@ -691,78 +701,46 @@
             const visibleRows = filteredRows.slice(start, end);
 
             allRows.forEach(row => row.style.display = 'none');
-
             visibleRows.forEach((row, index) => {
                 row.style.display = '';
-                row.querySelector('.row-number').textContent = start + index + 1;
+                const rowNumElement = row.querySelector('.row-number');
+                if (rowNumElement) rowNumElement.textContent = start + index + 1;
             });
         }
 
         function renderPaginationControls(totalPages) {
-            const paginationControls = document.getElementById('paginationControls');
-            paginationControls.innerHTML = '';
-
+            const controls = document.getElementById('paginationControls');
+            controls.innerHTML = '';
             if (totalPages <= 1) return;
 
-            const prevLi = document.createElement('li');
-            prevLi.className = currentPage === 1 ? 'disabled' : '';
-            prevLi.innerHTML = `<a href="#" onclick="goToPage(${currentPage - 1}, event)"><i class="bi bi-chevron-left"></i></a>`;
-            paginationControls.appendChild(prevLi);
+            const prev = `<li><a href="#" onclick="changePage(${currentPage - 1}, event)"><i class="bi bi-chevron-left"></i></a></li>`;
+            controls.insertAdjacentHTML('beforeend', prev);
 
-            let startPage = Math.max(1, currentPage - 2);
-            let endPage = Math.min(totalPages, currentPage + 2);
-
-            if (startPage > 1) {
-                const firstLi = document.createElement('li');
-                firstLi.innerHTML = `<a href="#" onclick="goToPage(1, event)">1</a>`;
-                paginationControls.appendChild(firstLi);
-
-                if (startPage > 2) {
-                    const dotsLi = document.createElement('li');
-                    dotsLi.innerHTML = `<span>...</span>`;
-                    paginationControls.appendChild(dotsLi);
-                }
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                const li = `<li class="${activeClass}"><a href="#" onclick="changePage(${i}, event)">${i}</a></li>`;
+                controls.insertAdjacentHTML('beforeend', li);
             }
 
-            for (let i = startPage; i <= endPage; i++) {
-                const li = document.createElement('li');
-                li.className = i === currentPage ? 'active' : '';
-                li.innerHTML = `<a href="#" onclick="goToPage(${i}, event)">${i}</a>`;
-                paginationControls.appendChild(li);
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    const dotsLi = document.createElement('li');
-                    dotsLi.innerHTML = `<span>...</span>`;
-                    paginationControls.appendChild(dotsLi);
-                }
-
-                const lastLi = document.createElement('li');
-                lastLi.innerHTML = `<a href="#" onclick="goToPage(${totalPages}, event)">${totalPages}</a>`;
-                paginationControls.appendChild(lastLi);
-            }
-
-            const nextLi = document.createElement('li');
-            nextLi.className = currentPage === totalPages ? 'disabled' : '';
-            nextLi.innerHTML = `<a href="#" onclick="goToPage(${currentPage + 1}, event)"><i class="bi bi-chevron-right"></i></a>`;
-            paginationControls.appendChild(nextLi);
+            const next = `<li><a href="#" onclick="changePage(${currentPage + 1}, event)"><i class="bi bi-chevron-right"></i></a></li>`;
+            controls.insertAdjacentHTML('beforeend', next);
         }
 
-        function updatePaginationInfo(totalPages) {
-            const paginationInfo = document.getElementById('paginationInfo');
-            const start = (currentPage - 1) * entriesPerPage + 1;
+        function updatePaginationInfo() {
+            const start = filteredRows.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1;
             const end = Math.min(currentPage * entriesPerPage, filteredRows.length);
-            paginationInfo.textContent = `Menampilkan ${filteredRows.length > 0 ? start : 0} sampai ${end} dari ${filteredRows.length} data`;
+
+            document.getElementById('startRange').textContent = start;
+            document.getElementById('endRange').textContent = end;
+            document.getElementById('totalCount').textContent = filteredRows.length;
         }
 
-        function goToPage(page, event) {
+        function changePage(page, event) {
             event.preventDefault();
             const totalPages = Math.ceil(filteredRows.length / entriesPerPage);
             if (page >= 1 && page <= totalPages) {
                 currentPage = page;
                 updatePagination();
-                document.querySelector('.table-responsive').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -770,74 +748,6 @@
             entriesPerPage = parseInt(this.value);
             currentPage = 1;
             updatePagination();
-        });
-
-        const searchInput = document.getElementById('searchInput');
-        const clearButton = document.getElementById('clearSearch');
-        const totalCount = document.getElementById('totalCount');
-
-        searchInput.addEventListener('keyup', function() {
-            const searchValue = this.value.toLowerCase();
-            isSearching = searchValue.length > 0;
-
-            if (isSearching) {
-                filteredRows = allRows.filter(row => {
-                    return row.textContent.toLowerCase().includes(searchValue);
-                });
-            } else {
-                filteredRows = [...allRows];
-            }
-
-            currentPage = 1;
-            totalCount.textContent = filteredRows.length;
-            clearButton.style.display = searchValue ? 'block' : 'none';
-
-            if (filteredRows.length === 0) {
-                const noResultsRow = allRows.find(row => row.classList.contains('no-data-row'));
-                if (!noResultsRow) {
-                    const tableBody = document.getElementById('tableBody');
-                    const noDataRow = document.createElement('tr');
-                    noDataRow.className = 'no-data-row';
-                    noDataRow.innerHTML = `
-                        <td colspan="8" class="text-center py-5">
-                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="mb-3 opacity-25">
-                            <p class="text-muted fw-semibold">Tidak ada hasil pencarian.</p>
-                        </td>
-                    `;
-                    tableBody.appendChild(noDataRow);
-                }
-                showPagination();
-            } else {
-                const noResultsRow = document.querySelector('tr.no-data-row');
-                if (noResultsRow) {
-                    noResultsRow.remove();
-                }
-            }
-
-            updatePagination();
-        });
-
-        clearButton.addEventListener('click', function() {
-            searchInput.value = '';
-            clearButton.style.display = 'none';
-            filteredRows = [...allRows];
-            isSearching = false;
-            currentPage = 1;
-            totalCount.textContent = allRows.length;
-            updatePagination();
-        });
-
-        document.querySelectorAll('.btn-edit-trigger').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                document.getElementById('formEdit').action = `?page=user_dashboard&action=update&id=${id}`;
-                document.getElementById('edit_date').value = this.getAttribute('data-date');
-                document.getElementById('edit_desc').value = this.getAttribute('data-desc');
-                document.getElementById('edit_area').value = this.getAttribute('data-area');
-                document.getElementById('edit_jenis').value = this.getAttribute('data-jenis');
-                document.getElementById('edit_target').value = this.getAttribute('data-target');
-                document.getElementById('edit_material').value = this.getAttribute('data-material');
-            });
         });
     </script>
 </body>

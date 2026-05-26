@@ -147,16 +147,20 @@ if ($page === 'admin_dashboard') {
         case 'user_detail':
             $adminCtrl->detail_user($id);
             break;
+        case 'export_excel':
+            $adminCtrl->export_excel();
+            break;
+        case 'export_pdf':
+            $adminCtrl->export_pdf();
+            break;
         default:
             $adminCtrl->index();
             break;
     }
 } elseif ($page === 'user_dashboard') {
-
     require_once __DIR__ . "/../controllers/NotesController.php";
     $notesController = new NotesController($koneksi);
-
-    $allowed_actions = ['create', 'update', 'delete', 'index'];
+    $allowed_actions = ['create', 'update', 'delete', 'index', 'export_excel', 'export_pdf'];
 
     if (in_array($action, $allowed_actions, true)) {
         switch ($action) {
@@ -168,6 +172,12 @@ if ($page === 'admin_dashboard') {
                 break;
             case 'delete':
                 $notesController->delete($id);
+                break;
+            case 'export_excel':
+                $notesController->export_excel();
+                break;
+            case 'export_pdf':
+                $notesController->export_pdf();
                 break;
             default:
                 $notesController->index();

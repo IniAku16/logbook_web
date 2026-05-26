@@ -179,4 +179,15 @@ class UserModel
         $stmt->execute();
         return $stmt->get_result();
     }
+
+    public function getAllSystemActivities()
+    {
+
+        $sql = "SELECT n.*, u.username, a.nama_area 
+            FROM notes n 
+            JOIN users u ON n.user_id = u.id_user 
+            JOIN tb_area a ON n.id_area = a.id_area 
+            ORDER BY n.date DESC";
+        return $this->db->query($sql);
+    }
 }

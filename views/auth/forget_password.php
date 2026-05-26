@@ -23,13 +23,14 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
     <style>
         :root {
-            --bg-body: #ece3db;
-            --milk-tea: #d4bda9;
-            --caramel: #967259;
-            --espresso: #2d1b14;
-            --white: #ffffff;
-            --accent-gold: #c6a664;
-            --shadow-bold: 0 20px 50px rgba(45, 27, 20, 0.12);
+            --bg-main: #fcfbfa; 
+            --primary-gradient: linear-gradient(135deg, #4a2c1b 0%, #b8860b 100%);
+            --text-dark: #2d1b14;
+            --text-muted: #6e5d55;
+            --card-bg: #ffffff;
+            --input-border: #d7ccc8; 
+            --shadow-bold-light: 0 20px 40px -5px rgba(74, 44, 27, 0.15), 
+                                  0 0 25px 0 rgba(74, 44, 27, 0.05);
         }
 
         * {
@@ -44,42 +45,30 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: var(--bg-body);
+            background-color: var(--bg-main);
             overflow: hidden;
             position: relative;
+            color: var(--text-dark);
         }
 
         body::before {
             content: "";
             position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, var(--milk-tea) 0%, transparent 70%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(184, 134, 11, 0.08) 0%, transparent 70%);
             top: -200px;
-            right: -100px;
-            opacity: 0.4;
-            z-index: 0;
-        }
-
-        body::after {
-            content: "";
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, var(--caramel) 0%, transparent 70%);
-            bottom: -150px;
-            left: -100px;
-            opacity: 0.2;
+            right: -200px;
             z-index: 0;
         }
 
         .card {
             width: 440px;
             padding: 50px 40px;
-            border-radius: 35px;
-            background: var(--white);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-bold);
+            border-radius: 24px;
+            background: var(--card-bg);
+            border: 2px solid rgba(74, 44, 27, 0.25); 
+            box-shadow: var(--shadow-bold-light);
             z-index: 2;
             position: relative;
         }
@@ -87,25 +76,25 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         .brand-text {
             text-align: center;
             font-weight: 800;
-            font-size: 13px;
-            color: var(--accent-gold);
+            font-size: 12px;
+            color: #4a2c1b;
             letter-spacing: 3px;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
         .title {
             text-align: center;
             font-size: 32px;
             font-weight: 800;
-            color: var(--espresso);
+            color: var(--text-dark);
             margin-bottom: 35px;
-            letter-spacing: -1.5px;
+            letter-spacing: -1px;
         }
 
         .alert {
             padding: 14px 18px;
-            border-radius: 16px;
+            border-radius: 12px;
             font-size: 13.5px;
             font-weight: 700;
             margin-bottom: 25px;
@@ -118,29 +107,19 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         .alert-error {
             background: #fff5f5;
             border: 2px solid #feb2b2;
-            color: #c53030;
+            color: #9b2c2c;
         }
 
         .alert-success {
             background: #f0fff4;
             border: 2px solid #9ae6b4;
-            color: #276749;
+            color: #22543d;
         }
 
         @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-5px);
-            }
-
-            75% {
-                transform: translateX(5px);
-            }
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         .input-group {
@@ -150,7 +129,7 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
         label {
             font-size: 12px;
-            color: var(--caramel);
+            color: var(--text-muted);
             font-weight: 800;
             margin-bottom: 8px;
             display: block;
@@ -162,57 +141,56 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         input {
             width: 100%;
             padding: 16px 20px;
-            border-radius: 16px;
-            border: 2px solid #eeeae6;
-            background: #fcfaf8;
-            color: var(--espresso);
+            border-radius: 12px;
+            border: 2px solid var(--input-border);
+            background: #ffffff;
+            color: var(--text-dark);
             outline: none;
             font-size: 15px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         input:focus {
-            border-color: var(--caramel);
-            background: var(--white);
-            box-shadow: 0 0 0 5px rgba(150, 114, 89, 0.1);
+            border-color: #4a2c1b;
+            box-shadow: 0 0 0 4px rgba(74, 44, 27, 0.15); 
         }
 
         .toggle {
             position: absolute;
             right: 20px;
-            top: 42px;
+            top: 45px; 
             cursor: pointer;
-            color: var(--milk-tea);
+            color: var(--text-muted);
             font-size: 20px;
             transition: 0.2s;
             z-index: 10;
         }
 
         .toggle:hover {
-            color: var(--espresso);
+            color: #4a2c1b;
         }
 
         button {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             border: none;
-            border-radius: 18px;
-            background: var(--espresso);
-            color: var(--white);
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            color: #ffffff;
             font-weight: 800;
             font-size: 15px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             margin-top: 10px;
-            box-shadow: 0 10px 25px rgba(45, 27, 20, 0.2);
+            box-shadow: 0 8px 20px rgba(74, 44, 27, 0.2);
         }
 
         button:hover {
-            background: var(--caramel);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(150, 114, 89, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(74, 44, 27, 0.35);
+            filter: brightness(1.1);
         }
 
         .footer-link {
@@ -222,23 +200,22 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
         .footer-link a {
             font-size: 14px;
-            color: var(--caramel);
+            color: var(--text-muted);
             text-decoration: none;
-            font-weight: 800;
-            transition: 0.3s;
+            font-weight: 700;
+            transition: 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
         .footer-link a:hover {
-            color: var(--espresso);
+            color: #4a2c1b;
             text-decoration: underline;
         }
 
         ::placeholder {
-            color: #ccc0b5;
-            font-weight: 500;
+            color: #bcaaa4;
         }
     </style>
 </head>
