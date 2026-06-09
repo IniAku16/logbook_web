@@ -60,26 +60,32 @@ class AdminController
         }
 
         $username = trim($_POST['username'] ?? '');
-        $username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
         $email    = trim($_POST['email'] ?? '');
-        $email    = filter_var($email, FILTER_SANITIZE_EMAIL);
-        $password = $_POST['password'] ?? '';
         $role     = $_POST['role'] ?? 'user';
 
-        if (empty($username) || empty($email) || empty($password)) {
-            echo json_encode(['status' => 'error', 'message' => 'Data tidak boleh kosong']);
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
+            echo json_encode(['status' => 'error', 'message' => 'Username hanya boleh huruf dan angka (tanpa simbol/spasi)']);
             exit();
         }
+        
+        $chars_all = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:,.<>?";
+        $generatedPassword = substr(str_shuffle($chars_all), 0, 10); 
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['status' => 'error', 'message' => 'Email tidak valid']);
-            exit();
+        $res = $this->userModel->createUser($username, $email, $generatedPassword, $role);
+
+        if ($res) {
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'User berhasil ditambah',
+                'data' => [
+                    'username' => $username,
+                    'email' => $email,
+                    'password' => $generatedPassword
+                ]
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal tambah user']);
         }
-
-        $role = ($role === 'admin') ? 'admin' : 'user';
-
-        $res = $this->userModel->createUser($username, $email, $password, $role);
-        echo json_encode(['status' => $res ? 'success' : 'error', 'message' => $res ? 'User berhasil ditambah' : 'Gagal tambah user']);
         exit();
     }
 

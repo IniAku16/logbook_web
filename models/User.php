@@ -21,7 +21,7 @@ class UserModel
 
     public function login()
     {
-        $query = "SELECT id_user, username, email, role, password FROM " . $this->table . " WHERE BINARY username=? OR BINARY email=?";
+        $query = "SELECT id_user, username, email, role, password, is_first_login FROM " . $this->table . " WHERE BINARY username=? OR BINARY email=?";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("ss", $this->username, $this->username);
         $stmt->execute();
@@ -39,15 +39,11 @@ class UserModel
             $pwInfo = password_get_info($storedPassword);
             $isHashed = !empty($pwInfo['algo']);
 
-            if (password_verify($providedPassword, $storedPassword) || (!$isHashed && $storedPassword === $providedPassword)) {
-                if (!$isHashed) {
-                    $this->rehashPassword($row['id_user'], $providedPassword);
-                }
-
+            if (password_verify($providedPassword, $storedPassword)) {
                 $this->id_user = $row['id_user'];
                 $this->username = $row['username'];
-                $this->email = $row['email'];
                 $this->role = $row['role'];
+                $this->is_first_login = $row['is_first_login'];
                 return true;
             }
         }
@@ -97,7 +93,7 @@ class UserModel
     public function createUser($username, $email, $password, $role)
     {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO users (username, email, password, role, is_first_login) VALUES (?, ?, ?, ?, 1)";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("ssss", $username, $email, $hashed, $role);
         return $stmt->execute();
@@ -189,5 +185,36 @@ class UserModel
             JOIN tb_area a ON n.id_area = a.id_area 
             ORDER BY n.date DESC";
         return $this->db->query($sql);
+    }
+
+    public function updatePasswordAndStatus($id_user, $newPassword)
+    {
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET password = ?, is_first_login = 0 WHERE id_user = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("si", $hashed, $id_user);
+        return $stmt->execute();
+    }
+
+    public function changeFirstPassword($id_user, $newPassword)
+    {
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET password = ?, is_first_login = 0 WHERE id_user = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("si", $hashed, $id_user);
+        return $stmt->execute();
+    }
+
+    public function updatePasswordAndStatusByIdentifier($identifier, $newPassword)
+    {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $query = "UPDATE " . $this->table . " SET password = ?, is_first_login = 0 WHERE username = ? OR email = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("sss", $hashedPassword, $identifier, $identifier);
+
+        if ($stmt->execute()) {
+            return $stmt->affected_rows > 0;
+        }
+        return false;
     }
 }

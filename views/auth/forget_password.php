@@ -23,14 +23,14 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
     <style>
         :root {
-            --bg-main: #fcfbfa; 
+            --bg-main: #fcfbfa;
             --primary-gradient: linear-gradient(135deg, #4a2c1b 0%, #b8860b 100%);
             --text-dark: #2d1b14;
             --text-muted: #6e5d55;
             --card-bg: #ffffff;
-            --input-border: #d7ccc8; 
-            --shadow-bold-light: 0 20px 40px -5px rgba(74, 44, 27, 0.15), 
-                                  0 0 25px 0 rgba(74, 44, 27, 0.05);
+            --input-border: #d7ccc8;
+            --shadow-bold-light: 0 20px 40px -5px rgba(74, 44, 27, 0.15),
+                0 0 25px 0 rgba(74, 44, 27, 0.05);
         }
 
         * {
@@ -41,7 +41,10 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         }
 
         body {
-            height: 100vh;
+            height: auto;
+            min-height: 100vh;
+            padding: 40px 0;
+            overflow-y: auto;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -67,10 +70,11 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
             padding: 50px 40px;
             border-radius: 24px;
             background: var(--card-bg);
-            border: 2px solid rgba(74, 44, 27, 0.25); 
+            border: 2px solid rgba(74, 44, 27, 0.25);
             box-shadow: var(--shadow-bold-light);
             z-index: 2;
             position: relative;
+            max-height: none;
         }
 
         .brand-text {
@@ -117,9 +121,19 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
 
         .input-group {
@@ -153,13 +167,13 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
         input:focus {
             border-color: #4a2c1b;
-            box-shadow: 0 0 0 4px rgba(74, 44, 27, 0.15); 
+            box-shadow: 0 0 0 4px rgba(74, 44, 27, 0.15);
         }
 
         .toggle {
             position: absolute;
             right: 20px;
-            top: 45px; 
+            top: 45px;
             cursor: pointer;
             color: var(--text-muted);
             font-size: 20px;
@@ -217,6 +231,37 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         ::placeholder {
             color: #bcaaa4;
         }
+
+        .validation-item {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+
+        .invalid {
+            color: #e53e3e;
+        }
+
+        .valid {
+            color: #38a169;
+        }
+
+        .validation-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        button:disabled {
+            background: #cbd5e0 !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
     </style>
 </head>
 
@@ -248,22 +293,33 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
             <div class="input-group">
                 <label>Username / Email</label>
-                <input type="text" name="identifier" placeholder="Masukkan akun Anda" required autocomplete="off">
+                <input type="text" name="identifier" required>
             </div>
 
             <div class="input-group">
                 <label>Password Baru</label>
-                <input type="password" id="pass1" name="new_password" placeholder="••••••••" required>
-                <i class="bi bi-eye-slash toggle" onclick="togglePass('pass1', this)"></i>
+                <div style="position: relative;">
+                    <input type="password" id="pass1" name="new_password" placeholder="••••••••" required onkeyup="validatePassword()">
+                    <i class="bi bi-eye-slash toggle" style="top: 50%; transform: translateY(-50%);" onclick="togglePass('pass1', this)"></i>
+                </div>
+            </div>
+
+            <div class="validation-container">
+                <div id="v-length" class="validation-item invalid"><i class="bi bi-x-circle"></i> Minimal 8 karakter</div>
+                <div id="v-upper" class="validation-item invalid"><i class="bi bi-x-circle"></i> Memiliki huruf besar (A-Z)</div>
+                <div id="v-lower" class="validation-item invalid"><i class="bi bi-x-circle"></i> Memiliki huruf kecil (a-z)</div>
+                <div id="v-symbol" class="validation-item invalid"><i class="bi bi-x-circle"></i> Memiliki simbol (!@#$%^&*)</div>
             </div>
 
             <div class="input-group">
                 <label>Konfirmasi Password</label>
-                <input type="password" id="pass2" name="confirm_password" placeholder="••••••••" required>
+                <input type="password" id="pass2" name="confirm_password" placeholder="••••••••" required onkeyup="validatePassword()">
                 <i class="bi bi-eye-slash toggle" onclick="togglePass('pass2', this)"></i>
             </div>
 
-            <button type="submit">UPDATE PASSWORD</button>
+            <div id="v-match" class="validation-item invalid mb-3" style="margin-left: 5px;"><i class="bi bi-circle"></i> Password cocok</div>
+
+            <button type="submit" id="btnSubmit" disabled>UPDATE PASSWORD</button>
         </form>
 
         <div class="footer-link">
@@ -274,10 +330,49 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
     </div>
 
     <script>
+        function validatePassword() {
+            const p1 = document.getElementById('pass1').value;
+            const p2 = document.getElementById('pass2').value;
+            const btn = document.getElementById('btnSubmit');
+
+            const rules = {
+                length: p1.length >= 8,
+                upper: /[A-Z]/.test(p1),
+                lower: /[a-z]/.test(p1),
+                symbol: /[\W_]/.test(p1)
+            };
+
+            Object.keys(rules).forEach(id => {
+                const el = document.getElementById('v-' + id);
+                const icon = el.querySelector('i');
+                if (rules[id]) {
+                    el.className = "validation-item valid";
+                    icon.className = "bi bi-check-circle";
+                } else {
+                    el.className = "validation-item invalid";
+                    icon.className = "bi bi-x-circle";
+                }
+            });
+
+            const matchEl = document.getElementById('v-match');
+            const matchIcon = matchEl.querySelector('i');
+            const isMatch = (p1 === p2 && p1 !== "");
+
+            if (isMatch) {
+                matchEl.className = "validation-item valid mb-3";
+                matchIcon.className = "bi bi-check-circle";
+            } else {
+                matchEl.className = "validation-item invalid mb-3";
+                matchIcon.className = "bi bi-circle";
+            }
+
+            const allValid = Object.values(rules).every(v => v === true) && isMatch;
+            btn.disabled = !allValid;
+        }
+
         function togglePass(inputId, icon) {
             const passwordInput = document.getElementById(inputId);
             const isHidden = passwordInput.getAttribute("type") === "password";
-
             passwordInput.setAttribute("type", isHidden ? "text" : "password");
 
             icon.classList.toggle("bi-eye");

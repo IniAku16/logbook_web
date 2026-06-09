@@ -25,6 +25,11 @@
                 $_SESSION['username'] = $data['username'];
                 $_SESSION['role'] = $data['role']; 
 
+                if ($data['is_first_login']== 1){
+                    header("Location: /logbook_web/public/index.php?page=change_password_required");
+                    exit();
+                }
+
                 if ($_SESSION['role'] == 'admin') {
                     header("Location: /logbook_web/public/index.php?page=admin_dashboard");
                 } else {

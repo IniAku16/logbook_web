@@ -305,9 +305,19 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
             box-shadow: none;
         }
 
-        .dataTables_length select { padding: 5px 30px 5px 10px !important; }
-    .dataTables_filter input { border: 2px solid var(--border-solid) !important; border-radius: 10px !important; }
-    .paginate_button.active .page-link { background-color: var(--espresso) !important; border-color: var(--espresso) !important; }
+        .dataTables_length select {
+            padding: 5px 30px 5px 10px !important;
+        }
+
+        .dataTables_filter input {
+            border: 2px solid var(--border-solid) !important;
+            border-radius: 10px !important;
+        }
+
+        .paginate_button.active .page-link {
+            background-color: var(--espresso) !important;
+            border-color: var(--espresso) !important;
+        }
     </style>
 </head>
 
@@ -366,56 +376,56 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
             </div>
         </div>
 
-<div class="table-wrapper">
-    <table id="userTable" class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>User Profile</th>
-                <th>Email Address</th>
-                <th>Access Role</th>
-                <th>Status</th>
-                <th class="text-center">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($users as $user): ?>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="user-avatar">
-                                <?= strtoupper(substr($user['username'], 0, 1)) ?>
-                            </div>
-                            <span style="font-weight: 900; font-size: 16px;"><?= htmlspecialchars($user['username']) ?></span>
-                        </div>
-                    </td>
-                    <td><?= htmlspecialchars($user['email']) ?></td>
-                    <td><span class="badge <?= $user['role'] == 'admin' ? 'bg-dark' : 'bg-secondary' ?> badge-role"><?= strtoupper($user['role']) ?></span></td>
-                    <td id="status-container-<?= $user['id_user'] ?>">
-                        <?php if ($user['last_activity'] && strtotime($user['last_activity']) > time() - 60): ?>
-                            <div class="status-active">
-                                <div class="dot-pulse"></div> ONLINE
-                            </div>
-                        <?php else: ?>
-                            <div class="status-offline">OFFLINE</div>
-                        <?php endif; ?>
-                    </td>
-                    <td class="text-center">
-                        <button class="btn-action btn-edit edit-user-btn"
-                            data-id="<?= $user['id_user'] ?>"
-                            data-username="<?= htmlspecialchars($user['username']) ?>"
-                            data-email="<?= htmlspecialchars($user['email']) ?>"
-                            data-role="<?= $user['role'] ?>">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
-                        <button class="btn-action btn-delete ms-1" onclick="deleteUser(<?= $user['id_user'] ?>)">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
+        <div class="table-wrapper">
+            <table id="userTable" class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>User Profile</th>
+                        <th>Email Address</th>
+                        <th>Access Role</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($users as $user): ?>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar">
+                                        <?= strtoupper(substr($user['username'], 0, 1)) ?>
+                                    </div>
+                                    <span style="font-weight: 900; font-size: 16px;"><?= htmlspecialchars($user['username']) ?></span>
+                                </div>
+                            </td>
+                            <td><?= htmlspecialchars($user['email']) ?></td>
+                            <td><span class="badge <?= $user['role'] == 'admin' ? 'bg-dark' : 'bg-secondary' ?> badge-role"><?= strtoupper($user['role']) ?></span></td>
+                            <td id="status-container-<?= $user['id_user'] ?>">
+                                <?php if ($user['last_activity'] && strtotime($user['last_activity']) > time() - 60): ?>
+                                    <div class="status-active">
+                                        <div class="dot-pulse"></div> ONLINE
+                                    </div>
+                                <?php else: ?>
+                                    <div class="status-offline">OFFLINE</div>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn-action btn-edit edit-user-btn"
+                                    data-id="<?= $user['id_user'] ?>"
+                                    data-username="<?= htmlspecialchars($user['username']) ?>"
+                                    data-email="<?= htmlspecialchars($user['email']) ?>"
+                                    data-role="<?= $user['role'] ?>">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn-action btn-delete ms-1" onclick="deleteUser(<?= $user['id_user'] ?>)">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="modal fade" id="addUserModal" tabindex="-1">
@@ -453,6 +463,42 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                         <button type="submit" class="btn-tambah w-100" style="padding: 16px;">SIMPAN PENGGUNA</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="successAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
+                <div class="modal-header border-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" style="color: #1F110B;">Detail Akun Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-4">Detail akun berikut siap dikirimkan kepada pengguna:</p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Username</label>
+                        <input type="text" id="res_username" class="form-control bg-light border-0 py-2" readonly style="border-radius: 10px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Email</label>
+                        <input type="text" id="res_email" class="form-control bg-light border-0 py-2" readonly style="border-radius: 10px;">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary">Password Default</label>
+                        <input type="text" id="res_password" class="form-control bg-light border-0 py-2 fw-bold" readonly style="border-radius: 10px; color: #A36B46;">
+                    </div>
+
+                    <button class="btn w-100 py-3 text-white fw-bold mb-2 shadow-sm"
+                        style="border-radius: 12px; background: #A36B46; border:none;"
+                        onclick="copyToClipboard()">
+                        <i class="bi bi-clipboard-check me-2"></i> Salin Semua Detail Akun
+                    </button>
+                    <button class="btn btn-light w-100 py-3 fw-bold border" style="border-radius: 12px;" data-bs-dismiss="modal">
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -500,7 +546,6 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
     <script>
         const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token']) ?>';
 
-
         function initEditButtons() {
             document.querySelectorAll('.edit-user-btn').forEach(btn => {
                 btn.onclick = function() {
@@ -538,16 +583,46 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
         document.addEventListener('DOMContentLoaded', function() {
             initEditButtons();
 
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.currentTarget;
+                const originalHtml = btn.innerHTML;
+                btn.style.background = "#38a169";
+                btn.innerHTML = '<i class="bi bi-check-all me-2"></i> Berhasil Disalin!';
+                setTimeout(() => {
+                    btn.style.background = "#A36B46";
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+
+
             document.getElementById('addUserForm').onsubmit = function(e) {
                 e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerText = "MEMPROSES...";
+
                 fetch('index.php?page=admin_dashboard&action=add_user', {
                         method: 'POST',
                         body: new FormData(this)
                     })
-                    .then(res => res.json()).then(data => {
-                        alert(data.message);
-                        if (data.status === 'success') location.reload();
-                    }).catch(() => console.log('Simulasi add submit (URL endpoint tidak ditemukan)'));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                            document.getElementById('res_username').value = data.data.username;
+                            document.getElementById('res_email').value = data.data.email;
+                            document.getElementById('res_password').value = data.data.password;
+
+                            new bootstrap.Modal(document.getElementById('successAccountModal')).show();
+                            this.reset();
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "SIMPAN PENGGUNA";
+                    });
             };
 
             document.getElementById('editUserForm').onsubmit = function(e) {
