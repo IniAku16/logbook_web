@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 21, 2026 at 10:12 AM
+-- Generation Time: Jun 10, 2026 at 11:51 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,7 +35,29 @@ CREATE TABLE `notes` (
   `target` enum('Menunggu Proses','Lanjut','Selesai') NOT NULL,
   `material` varchar(255) NOT NULL,
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL
+  `user_id` int(11) NOT NULL,
+  `foto_before` varchar(255) DEFAULT NULL,
+  `foto_after` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notes`
+--
+
+INSERT INTO `notes` (`date`, `description`, `id_area`, `jenis`, `target`, `material`, `id`, `user_id`, `foto_before`, `foto_after`) VALUES
+('2026-06-10', 'DDFFR', 2, 'Check List-Routine', 'Lanjut', 'CEFREF', 12, 18, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reset_password_requests`
+--
+
+CREATE TABLE `reset_password_requests` (
+  `id` int(11) NOT NULL,
+  `username_email` varchar(255) NOT NULL,
+  `status` enum('pending','selesai') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -92,17 +114,17 @@ CREATE TABLE `users` (
   `email` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
   `role` enum('admin','user') DEFAULT 'user',
-  `last_activity` datetime DEFAULT NULL
+  `last_activity` datetime DEFAULT NULL,
+  `is_first_login` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `role`, `last_activity`) VALUES
-(2, 'admin', 'admin@gmail.com', '$2y$10$ZES4oFK0zSWUQI6/0/756.4YG.EF/fGhreFwyU1MotQgY2MsSUKkm', 'admin', '2026-05-21 08:39:49'),
-(6, 'wola', 'eunwobila@gmail.com', '$2y$10$wG/nfT8glZcvi48rxv28nu/yeDxzqsR5biWNzL3xKmGjTcRnyjPQ.', 'user', NULL),
-(7, 'reyna', 'reyna@gmail.com', '$2y$10$4DcPCt26EdJ2LzQCB2lfOurCUi8ws0FxFnEqrCi8Onl1ZbnhjrCmu', 'user', '2026-05-21 08:46:18');
+INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `role`, `last_activity`, `is_first_login`) VALUES
+(1, 'admin', 'admin@gmail.com', '$2y$10$813ywg5MvsDMR3DWc.nUd.oLvO2rSB7scT/AtxTiYD8xlSkbaM/k2', 'admin', NULL, 0),
+(18, 'ara', 'ara@gmail.com', '$2y$10$RIB93r79hBT0.aoPhTwz3.FeiWAefatVsK2udXT/Bv5nEu2.zKcO6', 'user', '2026-06-10 16:49:17', 0);
 
 --
 -- Indexes for dumped tables
@@ -112,6 +134,12 @@ INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `role`, `last_a
 -- Indexes for table `notes`
 --
 ALTER TABLE `notes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `reset_password_requests`
+--
+ALTER TABLE `reset_password_requests`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -128,13 +156,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `reset_password_requests`
+--
+ALTER TABLE `reset_password_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
