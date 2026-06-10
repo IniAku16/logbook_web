@@ -335,6 +335,41 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
         </div>
     </nav>
 
+    <?php if (isset($requests) && count($requests) > 0): ?>
+        <div class="container-fluid mt-4 px-4">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px; background: #FFF4E5; border-left: 8px solid #D4A352 !important;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3" style="color: #3A2318;"><i class="bi bi-bell-fill me-2"></i> Permintaan Reset Password</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr style="font-size: 12px; color: #A36B46;">
+                                    <th>USER / EMAIL</th>
+                                    <th>WAKTU</th>
+                                    <th class="text-end">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($requests as $req): ?>
+                                    <tr>
+                                        <td class="fw-bold"><?= htmlspecialchars($req['username_email']) ?></td>
+                                        <td class="small text-muted"><?= date('d M, H:i', strtotime($req['created_at'])) ?></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-warning btn-sm fw-bold" onclick="prosesResetNotif(<?= $req['id'] ?>, '<?= $req['username_email'] ?>')">
+                                                RESET SEKARANG
+                                            </button>
+                                            <a href="index.php?page=admin_dashboard&action=hapus_notif_reset&id=<?= $req['id'] ?>" class="btn btn-light btn-sm" onclick="return confirm('Hapus notifikasi tanpa reset?')">Hapus</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div class="main-container">
         <div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
             <div class="header-title">
@@ -387,7 +422,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="user-table-body">
                     <?php foreach ($users as $user): ?>
                         <tr>
                             <td>
@@ -438,6 +473,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                 <form id="addUserForm">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <div class="modal-body p-4">
+                        <p class="text-muted small mb-3"><i class="bi bi-info-circle me-1"></i> Password akan dibuat otomatis oleh sistem demi keamanan.</p>
                         <div class="mb-3">
                             <label class="form-label">Username</label>
                             <input type="text" name="username" class="form-control" placeholder="Contoh: andi_setiawan" required>
@@ -445,10 +481,6 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                         <div class="mb-3">
                             <label class="form-label">Email</label>
                             <input type="email" name="email" class="form-control" placeholder="email@website.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Role Access</label>
@@ -460,7 +492,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                         </div>
                     </div>
                     <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="submit" class="btn-tambah w-100" style="padding: 16px;">SIMPAN PENGGUNA</button>
+                        <button type="submit" class="btn-tambah w-100" style="padding: 16px;">SIMPAN & GENERATE PASSWORD</button>
                     </div>
                 </form>
             </div>
@@ -476,32 +508,28 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                 </div>
                 <div class="modal-body p-4">
                     <p class="text-muted small mb-4">Detail akun berikut siap dikirimkan kepada pengguna:</p>
-
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-secondary">Username</label>
-                        <input type="text" id="res_username" class="form-control bg-light border-0 py-2" readonly style="border-radius: 10px;">
+                        <input type="text" id="res_username" class="form-control bg-light border-0 py-2" readonly>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-secondary">Email</label>
-                        <input type="text" id="res_email" class="form-control bg-light border-0 py-2" readonly style="border-radius: 10px;">
+                        <input type="text" id="res_email" class="form-control bg-light border-0 py-2" readonly>
                     </div>
                     <div class="mb-4">
                         <label class="form-label fw-bold small text-secondary">Password Default</label>
-                        <input type="text" id="res_password" class="form-control bg-light border-0 py-2 fw-bold" readonly style="border-radius: 10px; color: #A36B46;">
+                        <input type="text" id="res_password" class="form-control bg-light border-0 py-2 fw-bold" readonly style="color: #A36B46;">
                     </div>
 
-                    <button class="btn w-100 py-3 text-white fw-bold mb-2 shadow-sm"
-                        style="border-radius: 12px; background: #A36B46; border:none;"
-                        onclick="copyToClipboard()">
+                    <button type="button" id="btnCopyAll" class="btn w-100 py-3 text-white fw-bold mb-2 shadow-sm" style="border-radius: 12px; background: #A36B46; border:none;">
                         <i class="bi bi-clipboard-check me-2"></i> Salin Semua Detail Akun
                     </button>
-                    <button class="btn btn-light w-100 py-3 fw-bold border" style="border-radius: 12px;" data-bs-dismiss="modal">
-                        Tutup
-                    </button>
+                    <button class="btn btn-light w-100 py-3 fw-bold border" style="border-radius: 12px;" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -523,19 +551,22 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                             <input type="email" name="email" id="edit_email" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Password <span class="text-danger">*</span> <br><small class="text-muted fw-normal">Kosongkan jika tidak diubah</small></label>
-                            <input type="password" name="password" class="form-control">
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label">Role Access</label>
                             <select name="role" id="edit_role" class="form-select">
                                 <option value="user">User</option>
                                 <option value="admin">Administrator</option>
                             </select>
                         </div>
+                        <hr>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-outline-danger btn-sm fw-bold w-100 py-2" id="btnResetPassword" style="border-radius:10px;">
+                                <i class="bi bi-shield-lock me-2"></i> RESET & GENERATE PASSWORD BARU
+                            </button>
+                            <small class="text-muted mt-2 d-block">Gunakan ini jika user lupa password.</small>
+                        </div>
                     </div>
                     <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="submit" class="btn-tambah w-100" style="padding: 16px;">SIMPAN PERUBAHAN</button>
+                        <button type="submit" class="btn-tambah w-100" style="padding: 16px;">SIMPAN PERUBAHAN DATA</button>
                     </div>
                 </form>
             </div>
@@ -545,6 +576,32 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token']) ?>';
+
+        function prosesResetNotif(notifId, identifier) {
+
+            alert("Silahkan cari user '" + identifier + "' pada tabel User Management di bawah, lalu klik tombol Edit (Kuning) > Klik Reset Password.");
+        }
+
+        function copyAllDetails(btn) {
+            const user = document.getElementById('res_username').value;
+            const email = document.getElementById('res_email').value;
+            const pass = document.getElementById('res_password').value;
+
+            const fullText = `--- DETAIL AKUN BARU ---\nUsername: ${user}\nEmail: ${email}\nPassword: ${pass}\n-----------------------`;
+
+            navigator.clipboard.writeText(fullText).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check-lg me-2"></i> Berhasil Disalin!';
+                btn.style.background = "#28a745";
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = "#A36B46";
+                }, 2000);
+            }).catch(err => {
+                alert("Gagal menyalin teks.");
+            });
+        }
 
         function initEditButtons() {
             document.querySelectorAll('.edit-user-btn').forEach(btn => {
@@ -558,48 +615,18 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
             });
         }
 
-        function refreshData() {
-            const currentUrl = window.location.href;
-            const updateUrl = currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'update_activity=1';
-            fetch(updateUrl);
-            fetch(currentUrl)
-                .then(res => res.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newTableBody = doc.getElementById('user-table-body');
-                    const newTotalUsers = doc.getElementById('total-users-count');
-
-                    if (newTableBody) {
-                        document.getElementById('user-table-body').innerHTML = newTableBody.innerHTML;
-                        initEditButtons();
-                    }
-                    if (newTotalUsers) {
-                        document.getElementById('total-users-count').innerText = newTotalUsers.innerText;
-                    }
-                });
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             initEditButtons();
 
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.currentTarget;
-                const originalHtml = btn.innerHTML;
-                btn.style.background = "#38a169";
-                btn.innerHTML = '<i class="bi bi-check-all me-2"></i> Berhasil Disalin!';
-                setTimeout(() => {
-                    btn.style.background = "#A36B46";
-                    btn.innerHTML = originalHtml;
-                }, 2000);
+            document.getElementById('btnCopyAll').addEventListener('click', function() {
+                copyAllDetails(this);
             });
-
 
             document.getElementById('addUserForm').onsubmit = function(e) {
                 e.preventDefault();
                 const submitBtn = this.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
-                submitBtn.innerText = "MEMPROSES...";
+                submitBtn.innerText = "SEDANG MEMPROSES...";
 
                 fetch('index.php?page=admin_dashboard&action=add_user', {
                         method: 'POST',
@@ -612,7 +639,6 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                             document.getElementById('res_username').value = data.data.username;
                             document.getElementById('res_email').value = data.data.email;
                             document.getElementById('res_password').value = data.data.password;
-
                             new bootstrap.Modal(document.getElementById('successAccountModal')).show();
                             this.reset();
                         } else {
@@ -621,7 +647,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                     })
                     .finally(() => {
                         submitBtn.disabled = false;
-                        submitBtn.innerText = "SIMPAN PENGGUNA";
+                        submitBtn.innerText = "SIMPAN & BUAT PASSWORD";
                     });
             };
 
@@ -635,21 +661,52 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                     .then(res => res.json()).then(data => {
                         alert(data.message);
                         if (data.status === 'success') location.reload();
-                    }).catch(() => console.log('Simulasi edit submit'));
+                    });
+            };
+
+            document.getElementById('btnResetPassword').onclick = function() {
+                const id = document.getElementById('edit_id_user').value;
+                if (confirm("Password user ini akan di-reset otomatis oleh sistem. Lanjutkan?")) {
+                    const fd = new FormData();
+                    fd.append('csrf_token', csrfToken);
+
+                    fetch('index.php?page=admin_dashboard&action=reset_password&id=' + id, {
+                            method: 'POST',
+                            body: fd
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                                document.getElementById('res_username').value = data.data.username;
+                                document.getElementById('res_email').value = data.data.email;
+                                document.getElementById('res_password').value = data.data.password;
+                                new bootstrap.Modal(document.getElementById('successAccountModal')).show();
+                            } else {
+                                alert(data.message);
+                            }
+                        });
+                }
             };
         });
 
         function deleteUser(id) {
-            if (confirm('Hapus pengguna ini secara permanen?')) {
+            if (confirm('Hapus pengguna secara permanen?')) {
                 const fd = new FormData();
                 fd.append('csrf_token', csrfToken);
                 fetch('index.php?page=admin_dashboard&action=delete_user&id=' + id, {
                     method: 'POST',
                     body: fd
                 }).then(res => res.json()).then(data => {
-                    alert(data.message);
                     if (data.status === 'success') location.reload();
-                }).catch(() => console.log('Simulasi delete'));
+                });
+            }
+        }
+
+        function tandaiSelesai(id) {
+            if (confirm('Hapus notifikasi ini? Pastikan Anda sudah mengirim password baru ke user.')) {
+                fetch('index.php?page=admin_dashboard&action=hapus_notif_reset&id=' + id)
+                    .then(() => location.reload());
             }
         }
     </script>

@@ -40,6 +40,14 @@ class NotesController
     public function create()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $foto_before = null;
+            if (isset($_FILES['foto_before']) && $_FILES['foto_before']['error'] === 0) {
+                $targetDir = __DIR__ . "/../public/uploads/";
+                $ext = pathinfo($_FILES['foto_before']['name'], PATHINFO_EXTENSION);
+                $foto_before = "BEFORE_" . time() . "_" . uniqid() . "." . $ext;
+                move_uploaded_file($_FILES['foto_before']['tmp_name'], $targetDir . $foto_before);
+            }
+
             $this->model->create(
                 $_POST['date'],
                 $_POST['description'],
@@ -47,16 +55,26 @@ class NotesController
                 $_POST['jenis'],
                 $_POST['target'],
                 $_POST['material'],
-                $this->userId
+                $this->userId,
+                $foto_before
             );
             header("Location: index.php?page=user_dashboard");
             exit();
         }
     }
 
+
     public function update($id)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $foto_after = null;
+            if (isset($_FILES['foto_after']) && $_FILES['foto_after']['error'] === 0) {
+                $targetDir = __DIR__ . "/../public/uploads/";
+                $ext = pathinfo($_FILES['foto_after']['name'], PATHINFO_EXTENSION);
+                $foto_after = "AFTER_" . time() . "_" . uniqid() . "." . $ext;
+                move_uploaded_file($_FILES['foto_after']['tmp_name'], $targetDir . $foto_after);
+            }
+
             $this->model->update(
                 $id,
                 $_POST['date'],
@@ -65,7 +83,8 @@ class NotesController
                 $_POST['jenis'],
                 $_POST['target'],
                 $_POST['material'],
-                $this->userId
+                $this->userId,
+                $foto_after
             );
             header("Location: index.php?page=user_dashboard");
             exit();

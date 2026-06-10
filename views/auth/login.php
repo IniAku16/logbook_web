@@ -25,13 +25,13 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         :root {
             --bg-main: #fcfbfa;
             --primary-gradient: linear-gradient(135deg, #4a2c1b 0%, #b8860b 100%);
-            
+
             --text-dark: #2d1b14;
             --text-muted: #6e5d55;
             --card-bg: #ffffff;
-            --input-border: #d7ccc8; 
-            --shadow-bold-light: 0 20px 40px -5px rgba(74, 44, 27, 0.15), 
-                                  0 0 25px 0 rgba(74, 44, 27, 0.05);
+            --input-border: #d7ccc8;
+            --shadow-bold-light: 0 20px 40px -5px rgba(74, 44, 27, 0.15),
+                0 0 25px 0 rgba(74, 44, 27, 0.05);
         }
 
         * {
@@ -69,9 +69,9 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
             border-radius: 24px;
             background: var(--card-bg);
 
-            border: 2px solid rgba(74, 44, 27, 0.25); 
-            
-            box-shadow: var(--shadow-bold-light); 
+            border: 2px solid rgba(74, 44, 27, 0.25);
+
+            box-shadow: var(--shadow-bold-light);
             z-index: 2;
             position: relative;
         }
@@ -111,9 +111,19 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
 
         .input-group {
@@ -147,7 +157,7 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
 
         input:focus {
             border-color: #4a2c1b;
-            box-shadow: 0 0 0 4px rgba(74, 44, 27, 0.15); 
+            box-shadow: 0 0 0 4px rgba(74, 44, 27, 0.15);
         }
 
         .toggle {
@@ -241,10 +251,28 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
             </div>
 
             <button type="submit">MASUK SEKARANG</button>
+            <div class="forgot" style="margin-top: 20px; text-align: center;">
+                <a href="javascript:void(0)" onclick="openForgotModal()" style="color: var(--caramel); font-size: 13px; font-weight: 700;">
+                    <i class="bi bi-question-circle me-1"></i> Lupa Password? Hubungi Admin
+                </a>
+            </div>
         </form>
 
-        <div class="forgot">
-            <a href="<?= htmlspecialchars($frontController . '?page=forgot_password') ?>">Lupa password Anda?</a>
+        <div id="modalForgot" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+            <div class="card" style="width:380px; padding:30px;">
+                <div class="brand-text">Bantuan Akses</div>
+                <div class="title" style="font-size:20px; margin-bottom:15px;">Lupa Password?</div>
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Masukkan Username atau Email Anda. Admin akan mereset password Anda.</p>
+
+                <form id="formForgotRequest">
+                    <div class="input-group">
+                        <label>Username / Email</label>
+                        <input type="text" id="req_input" placeholder="Masukkan detail akun" required>
+                    </div>
+                    <button type="button" id="btnSubmitReset" onclick="sendRequestToDB()">KIRIM PERMINTAAN</button>
+                    <button type="button" onclick="closeModal()" style="background:none; color:var(--text-muted); box-shadow:none; margin-top:5px;">BATAL</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -259,6 +287,55 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
             this.classList.toggle("bi-eye");
             this.classList.toggle("bi-eye-slash");
         });
+
+        function openForgotModal() {
+            document.getElementById('modalForgot').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalForgot').style.display = 'none';
+        }
+
+        function sendRequestToDB() {
+            const input = document.getElementById('req_input').value;
+            const btn = document.getElementById('btnSubmitReset');
+
+            const csrf = document.querySelector('input[name="csrf_token"]').value;
+
+            if (!input) return alert('Isi Username/Email Anda');
+
+            btn.disabled = true;
+            btn.innerText = 'Mengirim...';
+
+            const fd = new FormData();
+            fd.append('action', 'submit_forget_password');
+            fd.append('input_user', input);
+            fd.append('csrf_token', csrf);
+
+            fetch('index.php', {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Server Error');
+                    return res.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === 'success') {
+                        closeModal();
+                        document.getElementById('req_input').value = '';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Gagal menghubungi server. Pastikan Anda tidak sedang offline.');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerText = 'KIRIM PERMINTAAN';
+                });
+        }
     </script>
 
 </body>

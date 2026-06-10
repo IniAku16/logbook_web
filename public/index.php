@@ -17,16 +17,32 @@ $userModel = new UserModel($koneksi);
 
 if ($userModel->getUserCount() === 0) {
     $userModel->createUser('admin', 'admin@gmail.com', 'Admin123', 'admin');
-    $_SESSION['success_msg'] = "Default admin dibuat: admin / Admin123";
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $form = $_POST['form'] ?? '';
     $csrfToken = $_POST['csrf_token'] ?? '';
+    $action    = $_POST['action'] ?? '';
+    $form      = $_POST['form'] ?? '';
 
-    if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
-        $_SESSION['error_msg'] = "Invalid request token.";
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        if ($action === 'submit_forget_password') {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Sesi kadaluarsa, refresh halaman.']);
+            exit();
+        }
+        $_SESSION['error_msg'] = "Sesi kadaluarsa, silahkan coba lagi.";
         header("Location: index.php");
+        exit();
+    }
+
+    if ($action === 'submit_forget_password') {
+        header('Content-Type: application/json');
+        $input = trim($_POST['input_user'] ?? '');
+        $res = $userModel->kirimPermintaanReset($input);
+        echo json_encode([
+            'status' => $res ? 'success' : 'error',
+            'message' => $res ? 'Permintaan terkirim! Tunggu admin memproses.' : 'User tidak ditemukan!'
+        ]);
         exit();
     }
 
@@ -34,78 +50,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $login = trim($_POST['login'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        if (empty($login) || empty($password)) {
-            $_SESSION['error_msg'] = "Login gagal. Username/email dan password harus diisi.";
-            header("Location: index.php");
-            exit();
-        }
-
         $userModel->username = $login;
         $userModel->password = $password;
 
         if ($userModel->login()) {
             session_regenerate_id(true);
-            $_SESSION['id_user'] = $userModel->id_user;
-            $_SESSION['username'] = $userModel->username;
-            $_SESSION['role'] = $userModel->role;
+            $_SESSION['id_user']        = $userModel->id_user;
+            $_SESSION['username']       = $userModel->username;
+            $_SESSION['role']           = $userModel->role;
             $_SESSION['is_first_login'] = $userModel->is_first_login;
 
-            $userModel->updateLastActivity($userModel->id_user);
+            $userModel->updateLastActivity($_SESSION['id_user']);
 
             if ($_SESSION['is_first_login'] == 1) {
                 header("Location: index.php?page=change_password_required");
                 exit();
             }
 
-            $redirect = ($userModel->role === 'admin') ? 'admin_dashboard' : 'user_dashboard';
+            $redirect = ($_SESSION['role'] === 'admin') ? 'admin_dashboard' : 'user_dashboard';
             header("Location: index.php?page=" . $redirect);
             exit();
         }
 
-        $_SESSION['error_msg'] = "Login gagal! Periksa kembali data Anda.";
+        $_SESSION['error_msg'] = "Username atau Password salah!";
         header("Location: index.php");
         exit();
     }
 
     if ($form === 'reset_password') {
-        $identifier = trim($_POST['identifier'] ?? '');
-        $newPassword = $_POST['new_password'] ?? '';
+        $identifier      = $_SESSION['username'] ?? '';
+        $newPassword     = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
 
-        if (empty($identifier) || empty($newPassword) || empty($confirmPassword)) {
-            $_SESSION['error_msg'] = "Semua kolom harus diisi.";
-            header("Location: index.php?page=forgot_password");
-            exit();
-        }
-
         if ($newPassword !== $confirmPassword) {
-            $_SESSION['error_msg'] = "Password baru dan konfirmasi tidak cocok.";
-            header("Location: index.php?page=forgot_password");
+            $_SESSION['error_msg'] = "Konfirmasi password tidak cocok!";
+            header("Location: index.php?page=change_password_required");
             exit();
         }
 
-        if ($userModel->updatePasswordAndStatusByIdentifier($identifier, $newPassword)) {
-            $_SESSION['success_msg'] = "Password diperbarui! Silakan login kembali.";
-
-            if (isset($_SESSION['id_user'])) {
-                session_unset();
-                session_destroy();
-                session_start();
-                $_SESSION['success_msg'] = "Password berhasil diperbarui. Silakan login.";
-            }
-
-            header("Location: index.php");
+        if ($userModel->changePasswordByUser($identifier, $newPassword)) {
+            $_SESSION['is_first_login'] = 0;
+            $_SESSION['success_msg'] = "Password berhasil diperbarui!";
+            $redirect = ($_SESSION['role'] === 'admin') ? 'admin_dashboard' : 'user_dashboard';
+            header("Location: index.php?page=" . $redirect);
+            exit();
+        } else {
+            $_SESSION['error_msg'] = "Gagal memperbarui password.";
+            header("Location: index.php?page=change_password_required");
             exit();
         }
-
-        $_SESSION['error_msg'] = "Username atau email tidak ditemukan.";
-        header("Location: index.php?page=forgot_password");
-        exit();
     }
 }
 
+$page   = $_GET['page'] ?? null;
+$action = $_GET['action'] ?? 'index';
+$id     = isset($_GET['id']) ? (int)$_GET['id'] : null;
+
 if (!isset($_SESSION['id_user'])) {
-    $page = $_GET['page'] ?? null;
     if ($page === 'forgot_password') {
         include __DIR__ . "/../views/auth/forget_password.php";
         exit();
@@ -114,9 +115,7 @@ if (!isset($_SESSION['id_user'])) {
     exit();
 }
 
-$page = $_GET['page'] ?? null;
-
-if ($_SESSION['is_first_login'] == 1 && !in_array($page, ['change_password_required', 'logout'])) {
+if ($_SESSION['is_first_login'] == 1 && $page !== 'change_password_required' && $page !== 'logout') {
     header("Location: index.php?page=change_password_required");
     exit();
 }
@@ -140,12 +139,9 @@ $access_map = [
     'user_dashboard'  => ['user'],
 ];
 
-if (!isset($access_map[$page]) || !in_array($role, $access_map[$page], true)) {
+if (!isset($access_map[$page]) || !in_array($role, $access_map[$page])) {
     $page = ($role === 'admin') ? 'admin_dashboard' : 'user_dashboard';
 }
-
-$action = $_GET['action'] ?? 'index';
-$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 if ($page === 'admin_dashboard') {
     require_once __DIR__ . "/../controllers/AdminController.php";
@@ -160,17 +156,17 @@ if ($page === 'admin_dashboard') {
         case 'delete_user':
             $adminCtrl->delete($id);
             break;
+        case 'reset_password':
+            $adminCtrl->reset_password($id);
+            break;
         case 'monitoring':
             $adminCtrl->monitoring();
             break;
         case 'user_detail':
             $adminCtrl->detail_user($id);
             break;
-        case 'export_excel':
-            $adminCtrl->export_excel();
-            break;
-        case 'export_pdf':
-            $adminCtrl->export_pdf();
+        case 'hapus_notif_reset':
+            $adminCtrl->hapus_notif_reset($id);
             break;
         default:
             $adminCtrl->index();

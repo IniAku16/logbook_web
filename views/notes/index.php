@@ -447,6 +447,7 @@
                             <th width="35%">Kegiatan / Aktivitas</th>
                             <th>Area</th>
                             <th>Kategori</th>
+                            <th>Foto</th>
                             <th>Status</th>
                             <th class="text-center">Aksi</th>
                         </tr>
@@ -473,6 +474,23 @@
                                     </td>
                                     <td><span class="badge-area"><?= htmlspecialchars($note['nama_area'] ?? 'N/A') ?></span></td>
                                     <td><span class="small fw-800 text-muted"><?= htmlspecialchars($note['jenis']) ?></span></td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <?php if (!empty($note['foto_before'])): ?>
+                                                <button class="btn btn-sm btn-outline-primary view-foto-btn" data-img="/logbook_web/public/uploads/<?= $note['foto_before'] ?>" title="Before">
+                                                    B
+                                                </button>
+                                            <?php endif; ?>
+
+                                            <?php if (!empty($note['foto_after'])): ?>
+                                                <button class="btn btn-sm btn-outline-success view-foto-btn" data-img="/logbook_web/public/uploads/<?= $note['foto_after'] ?>" title="After">
+                                                    A
+                                                </button>
+                                            <?php else: ?>
+                                                <span class="text-muted" style="font-size: 10px;">No After</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
                                     <td><span class="status-pill <?= $statusClass ?>"><?= $target ?></span></td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
@@ -553,6 +571,10 @@
                             </select>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label small fw-bold">Foto Before (Awal)</label>
+                            <input type="file" class="form-control" name="foto_before" accept="image/*" required>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">STATUS</label>
                             <select name="target" class="form-select" required>
                                 <option value="Menunggu Proses">Menunggu</option>
@@ -580,7 +602,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3">
+                    < class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">TANGGAL</label>
                             <input type="date" name="date" id="edit_date" class="form-control" required>
@@ -607,6 +629,19 @@
                                 <option value="Ganti Baru">Replacement</option>
                             </select>
                         </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">FOTO BEFORE</label>
+                                <div id="preview_before_container" class="mb-2">
+                                    <img id="edit_view_before" src="" class="img-thumbnail" style="height: 100px; display: none;">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-success">UPLOAD FOTO AFTER</label>
+                                <input type="file" class="form-control border-success" name="foto_after" accept="image/*">
+                                <small class="text-muted">Pilih foto jika pekerjaan selesai/progres</small>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">STATUS</label>
                             <select name="target" id="edit_target" class="form-select" required>
@@ -619,11 +654,25 @@
                             <label class="form-label fw-bold small text-muted">MATERIAL</label>
                             <input type="text" name="material" id="edit_material" class="form-control" required>
                         </div>
-                    </div>
-                    <button type="submit" class="btn-add w-100 mt-4 py-3">SIMPAN PERUBAHAN</button>
                 </div>
-            </form>
+                <button type="submit" class="btn-add w-100 mt-4 py-3">SIMPAN PERUBAHAN</button>
         </div>
+        </form>
+    </div>
+
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-transparent border-0 text-center">
+                <div class="img-container rounded shadow-lg bg-white">
+                    <img src="" id="imgPreview" alt="Foto">
+                </div>
+                <div class="mt-3">
+                    <a href="" id="downloadBtn" download class="btn btn-light btn-sm px-3"><i class="bi bi-download me-2"></i>Download</a>
+                    <button type="button" class="btn btn-danger btn-sm px-3 ms-2" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -644,44 +693,49 @@
             const tableBody = document.getElementById('tableBody');
             allRows = Array.from(tableBody.querySelectorAll('tr.data-row'));
             filteredRows = [...allRows];
-
             updatePagination();
 
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 const searchValue = this.value.toLowerCase();
-
-                filteredRows = allRows.filter(row => {
-                    return row.textContent.toLowerCase().includes(searchValue);
-                });
-
+                filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(searchValue));
                 currentPage = 1;
                 updatePagination();
-
-                const existingNoData = tableBody.querySelector('.no-data-row');
-                if (filteredRows.length === 0) {
-                    if (!existingNoData) {
-                        const noDataRow = document.createElement('tr');
-                        noDataRow.className = 'no-data-row';
-                        noDataRow.innerHTML = `<td colspan="7" class="text-center py-5"><p class="text-muted fw-bold">Data tidak ditemukan.</p></td>`;
-                        tableBody.appendChild(noDataRow);
-                    }
-                } else if (existingNoData) {
-                    existingNoData.remove();
-                }
             });
 
             document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.btn-edit-trigger');
-                if (btn) {
-                    const id = btn.getAttribute('data-id');
+                const editBtn = e.target.closest('.btn-edit-trigger');
+                if (editBtn) {
+                    const id = editBtn.getAttribute('data-id');
+                    const fotoBeforeName = editBtn.getAttribute('data-foto-before');
+
                     document.getElementById('formEdit').action = `?page=user_dashboard&action=update&id=${id}`;
-                    document.getElementById('edit_date').value = btn.getAttribute('data-date');
-                    document.getElementById('edit_desc').value = btn.getAttribute('data-desc');
-                    document.getElementById('edit_area').value = btn.getAttribute('data-area');
-                    document.getElementById('edit_jenis').value = btn.getAttribute('data-jenis');
-                    document.getElementById('edit_target').value = btn.getAttribute('data-target');
-                    document.getElementById('edit_material').value = btn.getAttribute('data-material');
+
+                    document.getElementById('edit_date').value = editBtn.getAttribute('data-date');
+                    document.getElementById('edit_desc').value = editBtn.getAttribute('data-desc');
+                    document.getElementById('edit_area').value = editBtn.getAttribute('data-area');
+                    document.getElementById('edit_jenis').value = editBtn.getAttribute('data-jenis');
+                    document.getElementById('edit_target').value = editBtn.getAttribute('data-target');
+                    document.getElementById('edit_material').value = editBtn.getAttribute('data-material');
+
+                    const imgPreviewEdit = document.getElementById('edit_view_before');
+                    if (fotoBeforeName && fotoBeforeName !== '') {
+                        imgPreviewEdit.src = "/logbook_web/public/uploads/" + fotoBeforeName;
+                        imgPreviewEdit.style.display = 'block';
+                    } else {
+                        imgPreviewEdit.style.display = 'none';
+                    }
+                }
+
+                const viewBtn = e.target.closest('.view-foto-btn');
+                if (viewBtn) {
+                    const src = viewBtn.getAttribute('data-img');
+                    const img = document.getElementById('imgPreview');
+                    img.src = src;
+                    document.getElementById('downloadBtn').href = src;
+
+                    const photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
+                    photoModal.show();
                 }
             });
         });
@@ -689,7 +743,6 @@
         function updatePagination() {
             const totalPages = Math.ceil(filteredRows.length / entriesPerPage);
             if (currentPage > totalPages) currentPage = totalPages || 1;
-
             displayPageRows();
             renderPaginationControls(totalPages);
             updatePaginationInfo();
@@ -699,7 +752,6 @@
             const start = (currentPage - 1) * entriesPerPage;
             const end = start + entriesPerPage;
             const visibleRows = filteredRows.slice(start, end);
-
             allRows.forEach(row => row.style.display = 'none');
             visibleRows.forEach((row, index) => {
                 row.style.display = '';
@@ -713,30 +765,24 @@
             controls.innerHTML = '';
             if (totalPages <= 1) return;
 
-            const prev = `<li><a href="#" onclick="changePage(${currentPage - 1}, event)"><i class="bi bi-chevron-left"></i></a></li>`;
-            controls.insertAdjacentHTML('beforeend', prev);
-
+            let html = `<li><a href="#" onclick="changePage(${currentPage - 1}, event)"><i class="bi bi-chevron-left"></i></a></li>`;
             for (let i = 1; i <= totalPages; i++) {
-                const activeClass = i === currentPage ? 'active' : '';
-                const li = `<li class="${activeClass}"><a href="#" onclick="changePage(${i}, event)">${i}</a></li>`;
-                controls.insertAdjacentHTML('beforeend', li);
+                html += `<li class="${i === currentPage ? 'active' : ''}"><a href="#" onclick="changePage(${i}, event)">${i}</a></li>`;
             }
-
-            const next = `<li><a href="#" onclick="changePage(${currentPage + 1}, event)"><i class="bi bi-chevron-right"></i></a></li>`;
-            controls.insertAdjacentHTML('beforeend', next);
+            html += `<li><a href="#" onclick="changePage(${currentPage + 1}, event)"><i class="bi bi-chevron-right"></i></a></li>`;
+            controls.innerHTML = html;
         }
 
         function updatePaginationInfo() {
             const start = filteredRows.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1;
             const end = Math.min(currentPage * entriesPerPage, filteredRows.length);
-
             document.getElementById('startRange').textContent = start;
             document.getElementById('endRange').textContent = end;
             document.getElementById('totalCount').textContent = filteredRows.length;
         }
 
         function changePage(page, event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             const totalPages = Math.ceil(filteredRows.length / entriesPerPage);
             if (page >= 1 && page <= totalPages) {
                 currentPage = page;

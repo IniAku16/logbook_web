@@ -4,7 +4,6 @@ require_once __DIR__ . "/../config/koneksi.php";
 
 class UserModel
 {
-
     private $db;
     private $table = "users";
 
@@ -13,6 +12,7 @@ class UserModel
     public $email;
     public $password;
     public $role;
+    public $is_first_login;
 
     public function __construct($koneksi)
     {
@@ -29,17 +29,7 @@ class UserModel
 
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
-
-            if ($row['username'] !== $this->username && $row['email'] !== $this->username) {
-                return false;
-            }
-
-            $providedPassword = $this->password;
-            $storedPassword = $row['password'];
-            $pwInfo = password_get_info($storedPassword);
-            $isHashed = !empty($pwInfo['algo']);
-
-            if (password_verify($providedPassword, $storedPassword)) {
+            if (password_verify($this->password, $row['password'])) {
                 $this->id_user = $row['id_user'];
                 $this->username = $row['username'];
                 $this->role = $row['role'];
@@ -50,31 +40,6 @@ class UserModel
         return false;
     }
 
-    private function rehashPassword($id_user, $password)
-    {
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $query = "UPDATE " . $this->table . " SET password = ? WHERE id_user = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("si", $hashed, $id_user);
-        $stmt->execute();
-    }
-
-    public function getUserCount()
-    {
-        $query = "SELECT COUNT(*) AS total FROM " . $this->table;
-        $result = $this->db->query($query);
-        $row = $result->fetch_assoc();
-        return (int)($row['total'] ?? 0);
-    }
-
-    public function updateLastActivity($id_user)
-    {
-        $query = "UPDATE users SET last_activity = NOW() WHERE id_user = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("i", $id_user);
-        $stmt->execute();
-    }
-
     public function getAllUsers()
     {
         $query = "SELECT * FROM " . $this->table . " ORDER BY last_activity DESC";
@@ -83,7 +48,7 @@ class UserModel
 
     public function getUserById($id)
     {
-        $query = "SELECT * FROM users WHERE id_user = ?";
+        $query = "SELECT * FROM " . $this->table . " WHERE id_user = ?";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -122,19 +87,56 @@ class UserModel
         return $stmt->execute();
     }
 
-    public function updatePassword($identifier, $newPassword)
+    public function resetPasswordByAdmin($id, $newPassword)
     {
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-        $query = "UPDATE " . $this->table . " SET password = ? WHERE username = ? OR email = ?";
-
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET password = ?, is_first_login = 1 WHERE id_user = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("sss", $hashedPassword, $identifier, $identifier);
+        $stmt->bind_param("si", $hashed, $id);
+        return $stmt->execute();
+    }
 
-        if ($stmt->execute()) {
-            return $stmt->affected_rows > 0;
-        }
-        return false;
+    public function changePasswordByUser($identifier, $newPassword)
+    {
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET password = ?, is_first_login = 0 WHERE username = ? OR email = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("sss", $hashed, $identifier, $identifier);
+        return $stmt->execute();
+    }
+
+    public function getUsersWithStats()
+    {
+
+        $query = "SELECT u.*, 
+                     COUNT(n.user_id) as total_aktivitas, 
+                     MAX(n.date) as aktivitas_terakhir 
+              FROM users u 
+              LEFT JOIN notes n ON u.id_user = n.user_id 
+              GROUP BY u.id_user 
+              ORDER BY total_aktivitas DESC";
+        return $this->db->query($query);
+    }
+
+    public function getUserActivityDetail($id_user)
+    {
+        $query = "SELECT n.*, a.nama_area 
+                  FROM notes n 
+                  JOIN tb_area a ON n.id_area = a.id_area 
+                  WHERE n.user_id = ? 
+                  ORDER BY n.date DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $id_user);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    public function updateLastActivity($id_user)
+    {
+        $query = "UPDATE users SET last_activity = NOW() WHERE id_user = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $id_user);
+        $stmt->execute();
     }
 
     public function setOffline($id_user)
@@ -145,76 +147,53 @@ class UserModel
         return $stmt->execute();
     }
 
-    public function getUsersWithStats()
+    public function getUserCount()
     {
-        $sql = "SELECT u.id_user, u.username, u.email, u.role, u.last_activity,
-            COUNT(n.id) as total_aktivitas,
-            MAX(n.date) as aktivitas_terakhir
-            FROM users u 
-            LEFT JOIN notes n ON u.id_user = n.user_id 
-            GROUP BY u.id_user";
-        return mysqli_query($this->db, $sql);
+        $query = "SELECT COUNT(*) AS total FROM " . $this->table;
+        $result = $this->db->query($query);
+        $row = $result->fetch_assoc();
+        return (int)($row['total'] ?? 0);
     }
 
     public function getTotalSystemActivities()
     {
         $sql = "SELECT COUNT(*) as total FROM notes";
-        $result = mysqli_query($this->db, $sql);
-        return $result->fetch_assoc()['total'];
-    }
-
-    public function getUserActivityDetail($id_user)
-    {
-        $sql = "SELECT n.*, a.nama_area 
-            FROM notes n 
-            JOIN tb_area a ON n.id_area = a.id_area 
-            WHERE n.user_id = ? 
-            ORDER BY n.date DESC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $id_user);
-        $stmt->execute();
-        return $stmt->get_result();
+        $result = $this->db->query($sql);
+        return $result->fetch_assoc()['total'] ?? 0;
     }
 
     public function getAllSystemActivities()
     {
-
         $sql = "SELECT n.*, u.username, a.nama_area 
-            FROM notes n 
-            JOIN users u ON n.user_id = u.id_user 
-            JOIN tb_area a ON n.id_area = a.id_area 
-            ORDER BY n.date DESC";
+                FROM notes n 
+                JOIN users u ON n.user_id = u.id_user 
+                JOIN tb_area a ON n.id_area = a.id_area 
+                ORDER BY n.date DESC";
         return $this->db->query($sql);
     }
 
-    public function updatePasswordAndStatus($id_user, $newPassword)
+    public function kirimPermintaanReset($input)
     {
-        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-        $query = "UPDATE users SET password = ?, is_first_login = 0 WHERE id_user = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("si", $hashed, $id_user);
-        return $stmt->execute();
-    }
-
-    public function changeFirstPassword($id_user, $newPassword)
-    {
-        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-        $query = "UPDATE users SET password = ?, is_first_login = 0 WHERE id_user = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("si", $hashed, $id_user);
-        return $stmt->execute();
-    }
-
-    public function updatePasswordAndStatusByIdentifier($identifier, $newPassword)
-    {
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        $query = "UPDATE " . $this->table . " SET password = ?, is_first_login = 0 WHERE username = ? OR email = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("sss", $hashedPassword, $identifier, $identifier);
-
-        if ($stmt->execute()) {
-            return $stmt->affected_rows > 0;
+        $check = $this->db->prepare("SELECT id_user FROM users WHERE username = ? OR email = ?");
+        $check->bind_param("ss", $input, $input);
+        $check->execute();
+        if ($check->get_result()->num_rows > 0) {
+            $stmt = $this->db->prepare("INSERT INTO reset_password_requests (username_email) VALUES (?)");
+            $stmt->bind_param("s", $input);
+            return $stmt->execute();
         }
         return false;
+    }
+
+    public function getSemuaPermintaanReset()
+    {
+        return $this->db->query("SELECT * FROM reset_password_requests ORDER BY created_at DESC");
+    }
+
+    public function hapusNotifikasiReset($id)
+    {
+        $stmt = $this->db->prepare("DELETE FROM reset_password_requests WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
     }
 }

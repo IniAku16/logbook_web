@@ -39,13 +39,49 @@ class AdminController
         $totalUsers = count($users);
         $totalAktivitasSistem = $this->userModel->getTotalSystemActivities();
 
+        $requestsResult = $this->userModel->getSemuaPermintaanReset();
+        $requests = [];
+        if ($requestsResult) {
+            while ($row = $requestsResult->fetch_assoc()) {
+                $requests[] = $row;
+            }
+        }
+
         include __DIR__ . "/../views/admin/dashboard.php";
+    }
+
+    public function hapus_notif_reset($id)
+    {
+        $this->userModel->hapusNotifikasiReset($id);
+        header("Location: index.php?page=admin_dashboard");
+        exit();
     }
 
     public function all_activities()
     {
         $allActivities = $this->userModel->getAllSystemActivities();
         include __DIR__ . "/../views/admin/all_activities.php";
+    }
+
+    private function generateStrongPassword($length = 12)
+    {
+        $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers = '0123456789';
+        $symbols = '!@#$%^&*()-_=+[]{}|;:,.<>?';
+
+        $password = '';
+        $password .= $uppercase[rand(0, strlen($uppercase) - 1)];
+        $password .= $lowercase[rand(0, strlen($lowercase) - 1)];
+        $password .= $numbers[rand(0, strlen($numbers) - 1)];
+        $password .= $symbols[rand(0, strlen($symbols) - 1)];
+
+        $allChars = $uppercase . $lowercase . $numbers . $symbols;
+        for ($i = 0; $i < $length - 4; $i++) {
+            $password .= $allChars[rand(0, strlen($allChars) - 1)];
+        }
+
+        return str_shuffle($password);
     }
 
     public function create()
@@ -55,7 +91,7 @@ class AdminController
         if (session_status() === PHP_SESSION_NONE) session_start();
         $csrf = $_POST['csrf_token'] ?? '';
         if (empty($csrf) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrf)) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid CSRF token']);
+            echo json_encode(['status' => 'error', 'message' => 'Token keamanan tidak valid']);
             exit();
         }
 
@@ -63,13 +99,12 @@ class AdminController
         $email    = trim($_POST['email'] ?? '');
         $role     = $_POST['role'] ?? 'user';
 
-        if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
-            echo json_encode(['status' => 'error', 'message' => 'Username hanya boleh huruf dan angka (tanpa simbol/spasi)']);
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+            echo json_encode(['status' => 'error', 'message' => 'Username hanya boleh huruf, angka, dan underscore']);
             exit();
         }
-        
-        $chars_all = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:,.<>?";
-        $generatedPassword = substr(str_shuffle($chars_all), 0, 10); 
+
+        $generatedPassword = $this->generateStrongPassword(12);
 
         $res = $this->userModel->createUser($username, $email, $generatedPassword, $role);
 
@@ -84,11 +119,10 @@ class AdminController
                 ]
             ]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Gagal tambah user']);
+            echo json_encode(['status' => 'error', 'message' => 'Gagal simpan ke database (Mungkin username/email sudah terdaftar)']);
         }
         exit();
     }
-
     public function update($id)
     {
         header('Content-Type: application/json');
@@ -353,6 +387,55 @@ class AdminController
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
         $dompdf->stream("Laporan_Aktivitas_" . date('Y-m-d') . ".pdf", ["Attachment" => 1]);
+        exit();
+    }
+
+    public function reset_password($id)
+    {
+        header('Content-Type: application/json');
+
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        $csrf = $_POST['csrf_token'] ?? '';
+        if (empty($csrf) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrf)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid CSRF token']);
+            exit();
+        }
+
+        $user = $this->userModel->getUserById($id);
+        if (!$user) {
+            echo json_encode(['status' => 'error', 'message' => 'User tidak ditemukan']);
+            exit();
+        }
+
+        $newPassword = $this->generateStrongPassword(12);
+        $res = $this->userModel->resetPasswordByAdmin($id, $newPassword);
+
+        if ($res) {
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Password berhasil di-reset. Silahkan berikan password baru ini kepada user.',
+                'data' => [
+                    'username' => $user['username'],
+                    'password' => $newPassword
+                ]
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal reset database']);
+        }
+        exit();
+    }
+
+    public function proses_lupa_password()
+    {
+        header('Content-Type: application/json');
+        $input = $_POST['input_user'] ?? '';
+
+        if (!empty($input)) {
+            $res = $this->userModel->kirimPermintaanReset($input);
+            echo json_encode(['status' => $res ? 'success' : 'error']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Input kosong']);
+        }
         exit();
     }
 }
