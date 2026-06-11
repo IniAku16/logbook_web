@@ -12,300 +12,301 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Aktivitas | Activity Digital</title>
+    <title>Monitoring Performa | Activity Digital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-body: #F2EAE1;
-            --milk-tea: #D4BDA9;
-            --caramel: #A36B46;
-            --espresso: #3A2318;
-            --espresso-dark: #1F110B;
-            --white: #FFFFFF;
-            --accent-gold: #D4A352;
-            --shadow-bold: 0 10px 25px rgba(31, 17, 11, 0.15);
-            --border-solid: #C9B39F;
+            --bg-body: #f8f6f4;
+            --primary-dark: #2d1b14;
+            --accent-gold: #b8860b;
+            --accent-silver: #717171;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --border-color: #e9e2db;
         }
 
         body {
             background-color: var(--bg-body);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--espresso-dark);
-            -webkit-font-smoothing: antialiased;
+            color: #443c39;
         }
 
-        .top-nav {
-            background: var(--espresso-dark);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border-bottom: 4px solid var(--accent-gold);
+        .navbar-admin {
+            background: var(--primary-dark);
+            padding: 0.8rem 2rem;
+            border-bottom: 3px solid var(--accent-gold);
         }
 
-        .brand-logo {
-            font-weight: 900;
-            font-size: 24px;
-            color: var(--white);
-            text-decoration: none;
-            letter-spacing: -0.5px;
+        .navbar-brand {
+            font-weight: 800;
+            color: #fff !important;
         }
 
-        .brand-logo span {
+        .navbar-brand span {
             color: var(--accent-gold);
         }
 
-        .main-container {
-            padding: 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header-title h1 {
-            font-weight: 900;
-            font-size: 40px;
-            color: var(--espresso-dark);
-            margin: 0;
-            letter-spacing: -1px;
-        }
-
-        .stat-card {
-            background: var(--white);
-            border: 3px solid var(--border-solid);
+        .card-stat {
+            background: #fff;
             border-radius: 20px;
-            padding: 25px 35px;
-            box-shadow: var(--shadow-bold);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
             display: flex;
             align-items: center;
-            gap: 25px;
-            width: fit-content;
+            margin-bottom: 30px;
+            transition: 0.3s;
         }
 
-        .stat-icon {
-            width: 70px;
-            height: 70px;
-            background: var(--espresso);
-            color: var(--white);
-            border-radius: 18px;
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 28px;
+            margin-right: 20px;
+            background: #fdf5e6;
+            color: var(--accent-gold);
         }
 
-        .stat-label {
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--caramel);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .stat-value {
-            font-size: 40px;
-            font-weight: 900;
-            color: var(--espresso-dark);
-            line-height: 1;
-            margin-top: 5px;
-        }
-
-        .table-wrapper {
-            background: var(--white);
+        .main-card {
+            background: #fff;
             border-radius: 24px;
-            padding: 35px;
-            box-shadow: var(--shadow-bold);
-            border: 2px solid var(--border-solid);
-            margin-top: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
         }
 
-        .table th {
-            font-weight: 900;
-            color: var(--espresso-dark);
+        .table thead th {
+            background: #faf9f7;
             text-transform: uppercase;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-            border-bottom: 3px solid var(--espresso-dark);
-            padding-bottom: 15px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            font-weight: 800;
+            padding: 20px;
+            color: #888;
+            border-bottom: 2px solid #f1f1f1;
         }
 
         .table td {
+            padding: 18px 20px;
             vertical-align: middle;
-            font-weight: 700;
-            color: var(--espresso-dark);
-            padding: 20px 10px;
-            border-bottom: 1px solid var(--border-solid);
-        }
-
-        .btn-action {
-            width: 42px;
-            height: 42px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            transition: 0.3s;
-            border: 2px solid transparent;
-            background: #FFE0B2;
-            color: #E65100;
-            font-size: 18px;
-            text-decoration: none;
-        }
-
-        .btn-action:hover {
-            border-color: #E65100;
-            transform: scale(1.05);
         }
 
         .badge-piagam {
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-weight: 900;
-            font-size: 12px;
-            text-transform: uppercase;
+            gap: 10px;
             letter-spacing: 0.5px;
-            border: 2px solid transparent;
         }
 
-        .badge-emas {
-            background: #FFF9C4;
-            color: #827717;
-            border-color: #FBC02D;
-            box-shadow: 0 4px 10px rgba(251, 192, 45, 0.2);
+        .piagam-gold {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffebcc 100%);
+            color: #b8860b;
+            border: 2px solid #f0c040;
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.15);
         }
 
-        .badge-perak {
-            background: #F5F5F5;
-            color: #424242;
-            border-color: #9E9E9E;
-            box-shadow: 0 4px 10px rgba(158, 158, 158, 0.2);
+        .piagam-silver {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #4b5563;
+            border: 2px solid #d1d5db;
         }
 
-        .badge-pemula {
-            background: #E1F5FE;
-            color: #01579B;
-            border-color: #03A9F4;
+        .piagam-legend {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            border: 2px solid #93c5fd;
+            animation: shine 2s infinite;
         }
 
-        .notes-count {
-            background: var(--espresso-dark);
-            color: var(--accent-gold);
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-weight: 900;
+        @keyframes shine {
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.02);
+            }
+        }
+
+        .btn-detail {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f6f4;
+            color: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            transition: 0.2s;
+        }
+
+        .btn-detail:hover {
+            background: var(--primary-dark);
+            color: #fff;
+        }
+
+        .btn-export {
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 700;
             font-size: 13px;
+        }
+
+        .nav-pills-custom .btn {
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 700;
         }
     </style>
 </head>
 
 <body>
-    <nav class="top-nav">
-        <a href="#" class="brand-logo">ACTIVITY <span>DIGITAL.</span></a>
-        <div class="d-flex align-items-center gap-3">
-            <div class="text-end d-none d-md-block text-white">
-                <div style="font-size: 11px; font-weight: 900; color: var(--accent-gold); letter-spacing: 1.5px;">AUTHENTICATED ADMIN</div>
-                <div style="font-size: 16px; font-weight: 900;"><?= htmlspecialchars($_SESSION['username']) ?></div>
+    <nav class="navbar navbar-expand-lg navbar-admin">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">ACTIVITY<span>DIGITAL.</span></a>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="text-end me-3 d-none d-md-block text-white">
+                    <small class="text-white-50 d-block fw-bold" style="font-size: 10px;">MONITORING DASHBOARD</small>
+                    <span class="fw-bold"><?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></span>
+                </div>
+                <a href="index.php?page=logout" class="btn btn-outline-light border-0 rounded-circle">
+                    <i class="bi bi-power fs-5"></i>
+                </a>
             </div>
-            <a href="index.php?page=logout" class="btn-action bg-danger text-white border-0" onclick="return confirm('Apakah anda ingin logout?')">
-                <i class="bi bi-power"></i>
-            </a>
         </div>
     </nav>
 
-    <div class="main-container">
-        <div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
-            <div class="header-title">
-                <h1>Activity Monitoring</h1>
-                <p class="mb-0 fw-bold" style="color: var(--caramel);">Pantau produktivitas dan performa kerja tim secara real-time.</p>
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div>
+                <h3 class="fw-800 mb-1">Monitoring Performa Tim</h3>
+                <p class="text-muted small mb-0">Hanya menampilkan personil aktif (Admin tidak ditampilkan).</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="index.php?page=admin_dashboard&action=export_pdf" class="btn btn-danger fw-bold shadow-sm" style="border-radius: 12px; padding: 12px 20px;">
-                    <i class="bi bi-file-pdf-fill me-2"></i> PDF
+                <a href="index.php?page=admin_dashboard&action=export_pdf" class="btn btn-export btn-light border shadow-sm text-danger">
+                    <i class="bi bi-file-pdf-fill me-2"></i>Export PDF
                 </a>
-                <a href="index.php?page=admin_dashboard&action=export_excel" class="btn btn-success fw-bold shadow-sm" style="border-radius: 12px; padding: 12px 20px;">
-                    <i class="bi bi-file-earmark-excel-fill me-2"></i> EXCEL
-                </a>
-            </div>
-        </div>
-
-        <div class="container-fluid px-0 mb-4">
-            <div class="d-flex gap-3">
-                <a href="index.php?page=admin_dashboard" class="btn btn-outline-dark shadow-sm" style="font-weight: 800; border-radius: 12px; padding: 12px 25px; border-width: 2px;">
-                    <i class="bi bi-people-fill me-2"></i> User Management
-                </a>
-                <a href="index.php?page=admin_dashboard&action=monitoring" class="btn btn-dark shadow-sm" style="font-weight: 800; border-radius: 12px; padding: 12px 25px;">
-                    <i class="bi bi-graph-up-arrow me-2"></i> Monitoring Aktivitas
+                <a href="index.php?page=admin_dashboard&action=export_excel" class="btn btn-export btn-light border shadow-sm text-success">
+                    <i class="bi bi-file-earmark-excel-fill me-2"></i>Export Excel
                 </a>
             </div>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-auto">
-                <div class="stat-card" onclick="window.location.href='index.php?page=admin_dashboard&action=all_activities'" style="cursor:pointer;">
-                    <div class="stat-icon" style="background: var(--caramel);"><i class="bi bi-journal-check"></i></div>
+        <div class="nav-pills-custom d-flex gap-2 mb-4">
+            <a href="index.php?page=admin_dashboard" class="btn btn-light text-muted border px-4">
+                <i class="bi bi-people-fill me-2"></i>Manajemen User
+            </a>
+            <a href="index.php?page=admin_dashboard&action=monitoring" class="btn btn-dark px-4 shadow">
+                <i class="bi bi-graph-up-arrow me-2"></i>Monitoring Aktivitas
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-stat">
+                    <div class="icon-circle">
+                        <i class="bi bi-award"></i>
+                    </div>
                     <div>
-                        <div class="stat-label">Total Aktivitas Sistem</div>
-                        <div class="stat-value"><?= $totalAktivitas ?></div>
+                        <small class="text-muted fw-bold d-block">TOTAL INPUT SISTEM</small>
+                        <h2 class="fw-800 mb-0"><?= number_format($totalAktivitas) ?> <small class="fs-6 text-muted">Notes</small></h2>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="table-wrapper">
-            <table class="table table-hover mb-0" id="tableMonitoring">
-                <thead>
-                    <tr>
-                        <th>Nama Pengguna</th>
-                        <th>Total Aktivitas</th>
-                        <th>Aktivitas Terakhir</th>
-                        <th>Status Performa</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($stats as $s): ?>
+        <div class="main-card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
                         <tr>
-                            <td>
-                                <div style="font-weight: 900; font-size: 16px;"><?= htmlspecialchars($s['username']) ?></div>
-                                <div style="font-size: 13px; color: var(--caramel); font-weight: 600;"><?= htmlspecialchars($s['email']) ?></div>
-                            </td>
-                            <td>
-                                <span class="notes-count">
-                                    <i class="bi bi-pencil-square me-1"></i> <?= $s['total_aktivitas'] ?> Notes
-                                </span>
-                            </td>
-                            <td style="font-size: 14px; font-weight: 800;">
-                                <?= $s['aktivitas_terakhir'] ? date('d M Y', strtotime($s['aktivitas_terakhir'])) : '<span class="text-muted">Belum ada data</span>' ?>
-                            </td>
-                            <td>
-                                <?php
-                                $count = $s['total_aktivitas'];
-                                if ($count >= 20) {
-                                    echo '<div class="badge-piagam badge-emas"><i class="bi bi-trophy-fill"></i> Piagam Emas: Sangat Aktif</div>';
-                                } elseif ($count >= 10) {
-                                    echo '<div class="badge-piagam badge-perak"><i class="bi bi-award-fill"></i> Piagam Perak: Aktif</div>';
-                                } else {
-                                    echo '<div class="badge-piagam badge-pemula"><i class="bi bi-stars"></i> Kontributor Pemula</div>';
-                                }
-                                ?>
-                            </td>
-                            <td class="text-center">
-                                <a href="index.php?page=admin_dashboard&action=user_detail&id=<?= $s['id_user'] ?>" class="btn-action shadow-sm" title="Lihat Detail">
-                                    <i class="bi bi-eye-fill"></i>
-                                </a>
-                            </td>
+                            <th>Nama Personel</th>
+                            <th class="text-center">Total Notes</th>
+                            <th>Update Terakhir</th>
+                            <th>Piagam Penghargaan</th>
+                            <th class="text-center">Action</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $hasOperator = false;
+                        foreach ($stats as $s):
+                            if (isset($s['role']) && $s['role'] === 'admin') continue;
+
+                            $hasOperator = true;
+                        ?>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm" style="width: 42px; height: 42px; font-size: 14px;">
+                                            <?= strtoupper(substr($s['username'], 0, 1)) ?>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold"><?= htmlspecialchars($s['username']) ?></div>
+                                            <small class="text-muted" style="font-size: 11px;"><?= htmlspecialchars($s['email']) ?></small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-800 fs-5"><?= $s['total_aktivitas'] ?></span>
+                                </td>
+                                <td>
+                                    <div class="small fw-600">
+                                        <i class="bi bi-calendar-check me-1 text-muted"></i>
+                                        <?= $s['aktivitas_terakhir'] ? date('d M Y', strtotime($s['aktivitas_terakhir'])) : '<span class="text-muted">No Data</span>' ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <?php
+                                    $count = $s['total_aktivitas'];
+                                    if ($count >= 30) {
+                                        echo '<span class="badge-piagam piagam-legend"><i class="bi bi-crown-fill"></i> ELITE MEMBER (PRO)</span>';
+                                    } elseif ($count >= 15) {
+                                        echo '<span class="badge-piagam piagam-gold"><i class="bi bi-trophy-fill"></i> GOLD MEMBER (ACTIVE)</span>';
+                                    } else {
+                                        echo '<span class="badge-piagam piagam-silver"><i class="bi bi-award-fill"></i> SILVER MEMBER (PEMULA)</span>';
+                                    }
+                                    ?>
+                                </td>
+                                <td class="text-center">
+                                    <a href="index.php?page=admin_dashboard&action=user_detail&id=<?= $s['id_user'] ?>" class="btn-detail shadow-sm">
+                                        <i class="bi bi-chevron-right fw-bold"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                        <?php if (!$hasOperator): ?>
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="bi bi-person-x fs-1 text-muted d-block mb-2"></i>
+                                    <span class="text-muted fw-bold">Tidak ada user yang ditemukan.</span>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

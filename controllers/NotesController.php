@@ -58,6 +58,15 @@ class NotesController
                 $this->userId,
                 $foto_before
             );
+
+            $this->logModel->save(
+                $_SESSION['user_id'],
+                'CREATE',
+                'Notes',
+                'Menambah catatan baru: ' . $_POST['description'],
+                null,
+                $_POST
+            );
             header("Location: index.php?page=user_dashboard");
             exit();
         }

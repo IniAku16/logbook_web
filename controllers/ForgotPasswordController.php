@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $userModel = new UserModel($koneksi);
+    $this->logModel->save($user['id_user'], 'REQUEST', 'Forgot Password', 'User melakukan permintaan reset password');
 
     if ($userModel->changePasswordByUser($identifier, $newPassword)) {
         header("Location: ../views/auth/login.php?success=Berhasil! Silahkan login.");

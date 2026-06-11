@@ -248,6 +248,18 @@ $isLoggedIn = isset($_SESSION['id_user']);
             padding: 20px;
             border-radius: 20px;
         }
+        
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+
+        input::-webkit-contacts-auto-fill-button,
+        input::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            display: none !important;
+            pointer-events: none;
+        }
     </style>
 </head>
 

@@ -416,6 +416,7 @@ class AdminController
                 'message' => 'Password berhasil di-reset. Silahkan berikan password baru ini kepada user.',
                 'data' => [
                     'username' => $user['username'],
+                    'email'    => $user['email'],
                     'password' => $newPassword
                 ]
             ]);

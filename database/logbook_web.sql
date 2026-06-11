@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 10, 2026 at 11:51 AM
+-- Generation Time: Jun 11, 2026 at 09:55 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,25 @@ SET time_zone = "+00:00";
 --
 -- Database: `logbook_web`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `log_activity`
+--
+
+CREATE TABLE `log_activity` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `action` varchar(100) NOT NULL,
+  `module` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `data_old` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`data_old`)),
+  `data_new` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`data_new`)),
+  `ip_address` varchar(255) NOT NULL,
+  `user_agent` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -45,7 +64,8 @@ CREATE TABLE `notes` (
 --
 
 INSERT INTO `notes` (`date`, `description`, `id_area`, `jenis`, `target`, `material`, `id`, `user_id`, `foto_before`, `foto_after`) VALUES
-('2026-06-10', 'DDFFR', 2, 'Check List-Routine', 'Lanjut', 'CEFREF', 12, 18, NULL, NULL);
+('2026-06-11', 'AAAA', 1, 'Ganti Baru', 'Lanjut', 'AAA,BBB,CCC', 14, 22, 'BEFORE_1781149786_6a2a305a3709d.png', 'AFTER_1781149908_6a2a30d460406.png'),
+('2026-06-11', 'DFF', 3, 'Complain', 'Lanjut', 'FVFV', 16, 23, 'BEFORE_1781150374_6a2a32a631b52.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -123,12 +143,19 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `role`, `last_activity`, `is_first_login`) VALUES
-(1, 'admin', 'admin@gmail.com', '$2y$10$813ywg5MvsDMR3DWc.nUd.oLvO2rSB7scT/AtxTiYD8xlSkbaM/k2', 'admin', NULL, 0),
-(18, 'ara', 'ara@gmail.com', '$2y$10$RIB93r79hBT0.aoPhTwz3.FeiWAefatVsK2udXT/Bv5nEu2.zKcO6', 'user', '2026-06-10 16:49:17', 0);
+(1, 'admin', 'admin@gmail.com', '$2y$10$813ywg5MvsDMR3DWc.nUd.oLvO2rSB7scT/AtxTiYD8xlSkbaM/k2', 'admin', '2026-06-11 14:08:01', 0),
+(25, 'biya', 'biya@gmail.com', '$2y$10$swt7RY35hTdJTqJz/wUcn.AXYqrZisujOh0lbwBGDG2UNdy.OEH1.', 'user', NULL, 1);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `log_activity`
+--
+ALTER TABLE `log_activity`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `notes`
@@ -153,22 +180,28 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `log_activity`
+--
+ALTER TABLE `log_activity`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `reset_password_requests`
 --
 ALTER TABLE `reset_password_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -218,6 +218,18 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
         ::placeholder {
             color: #bcaaa4;
         }
+
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+
+        input::-webkit-contacts-auto-fill-button,
+        input::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            display: none !important;
+            pointer-events: none;
+        }
     </style>
 </head>
 
