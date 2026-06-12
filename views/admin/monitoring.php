@@ -215,6 +215,9 @@ if (session_status() === PHP_SESSION_NONE) session_start();
             <a href="index.php?page=admin_dashboard&action=monitoring" class="btn btn-dark px-4 shadow">
                 <i class="bi bi-graph-up-arrow me-2"></i>Monitoring Aktivitas
             </a>
+            <a href="index.php?page=admin_dashboard&action=system_logs" class="btn btn-dark px-4 shadow">
+                <i class="bi bi-journal-text me-2"></i>Log Aktivitas
+            </a>
         </div>
 
         <div class="row">

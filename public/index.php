@@ -174,6 +174,17 @@ if ($page === 'admin_dashboard') {
         case 'export_pdf':
             $adminCtrl->export_pdf();
             break;
+        case 'admin_dashboard':
+            $action = $_GET['action'] ?? '';
+            if ($action == 'get_json') {
+                $adminCtrl->get_realtime_data();
+            } else {
+                $adminCtrl->index();
+            }
+            break;
+        case 'system_logs':
+            $adminCtrl->list_logs();
+            break;
         default:
             $adminCtrl->index();
             break;

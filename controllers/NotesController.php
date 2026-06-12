@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../models/Notes.php";
+require_once __DIR__ . "/../models/LogActivity.php";
+
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -14,6 +16,7 @@ class NotesController
 {
     private $model;
     private $userId;
+    private $logModel;
 
     public function __construct($koneksi)
     {
@@ -27,6 +30,7 @@ class NotesController
         }
 
         $this->model = new NoteModel($koneksi);
+        $this->logModel = new LogActivity($koneksi);
         $this->userId = $_SESSION['id_user'];
     }
 
@@ -48,7 +52,7 @@ class NotesController
                 move_uploaded_file($_FILES['foto_before']['tmp_name'], $targetDir . $foto_before);
             }
 
-            $this->model->create(
+            $res = $this->model->create(
                 $_POST['date'],
                 $_POST['description'],
                 $_POST['id_area'],
@@ -59,14 +63,17 @@ class NotesController
                 $foto_before
             );
 
-            $this->logModel->save(
-                $_SESSION['user_id'],
-                'CREATE',
-                'Notes',
-                'Menambah catatan baru: ' . $_POST['description'],
-                null,
-                $_POST
-            );
+            if ($res) {
+                $this->logModel->save(
+                    $this->userId,
+                    'CREATE',
+                    'Notes',
+                    'Menambah catatan baru di area ID: ' . $_POST['id_area'],
+                    null,
+                    $_POST
+                );
+            }
+
             header("Location: index.php?page=user_dashboard");
             exit();
         }

@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../models/User.php";
+require_once __DIR__ . "/../models/LogActivity.php";
+
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -13,6 +15,7 @@ use Dompdf\Options;
 class AdminController
 {
     private $userModel;
+    private $logModel;
 
     public function __construct($koneksi)
     {
@@ -26,6 +29,13 @@ class AdminController
         }
 
         $this->userModel = new UserModel($koneksi);
+        $this->logModel = new LogActivity($koneksi);
+    }
+
+    public function list_logs()
+    {
+        $logs = $this->logModel->getAllLogs();
+        include __DIR__ . "/../views/admin/system_logs.php";
     }
 
     public function index()
@@ -123,9 +133,11 @@ class AdminController
         }
         exit();
     }
+
     public function update($id)
     {
         header('Content-Type: application/json');
+        $oldData = $this->userModel->getUserById($id);
 
         if (session_status() === PHP_SESSION_NONE) session_start();
         $csrf = $_POST['csrf_token'] ?? '';
@@ -156,6 +168,9 @@ class AdminController
         $res = $this->userModel->updateUser($id, $username, $email, $role, $password);
         echo json_encode(['status' => $res ? 'success' : 'error', 'message' => $res ? 'User berhasil diupdate' : 'Gagal update user']);
         exit();
+        if ($res) {
+            $this->logModel->save($_SESSION['id_user'], 'UPDATE', 'User Management', "Update user ID: $id", $oldData, $_POST);
+        }
     }
 
     public function delete($id)
@@ -291,6 +306,7 @@ class AdminController
 
     public function export_pdf()
     {
+        $this->logModel->save($_SESSION['id_user'], 'EXPORT', 'Monitoring', "Export Laporan Aktivitas ke PDF");
         $data = $this->userModel->getAllSystemActivities();
 
         $options = new Options();
@@ -437,6 +453,36 @@ class AdminController
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Input kosong']);
         }
+        exit();
+    }
+
+    public function get_realtime_data()
+    {
+        header('Content-Type: application/json');
+
+        $usersResult = $this->userModel->getAllUsers();
+        $users = [];
+        while ($row = $usersResult->fetch_assoc()) {
+            $row['is_online'] = ($row['last_activity'] && strtotime($row['last_activity']) > time() - 60);
+            $users[] = $row;
+        }
+
+        $totalAktivitasSistem = $this->userModel->getTotalSystemActivities();
+
+        $requestsResult = $this->userModel->getSemuaPermintaanReset();
+        $requests = [];
+        if ($requestsResult) {
+            while ($row = $requestsResult->fetch_assoc()) {
+                $row['created_at_formatted'] = date('H:i', strtotime($row['created_at']));
+                $requests[] = $row;
+            }
+        }
+
+        echo json_encode([
+            'users' => $users,
+            'requests' => $requests,
+            'totalAktivitas' => $totalAktivitasSistem
+        ]);
         exit();
     }
 }

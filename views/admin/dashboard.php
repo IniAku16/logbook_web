@@ -241,44 +241,46 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
     <div class="container-fluid px-4 py-4">
 
         <?php if (isset($requests) && count($requests) > 0): ?>
-            <div class="notif-compact d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div class="d-flex align-items-center">
-                    <div class="bg-warning-subtle text-warning p-2 rounded-3 me-3">
-                        <i class="bi bi-shield-lock-fill fs-5"></i>
+            <div id="notif-wrapper">
+                <div class="notif-compact d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning-subtle text-warning p-2 rounded-3 me-3">
+                            <i class="bi bi-shield-lock-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-800">Permintaan Reset Password</h6>
+                            <small class="text-muted">Ada <strong><?= count($requests) ?></strong> user meminta pengaturan ulang kata sandi.</small>
+                        </div>
                     </div>
-                    <div>
-                        <h6 class="mb-0 fw-800">Permintaan Reset Password</h6>
-                        <small class="text-muted">Ada <strong><?= count($requests) ?></strong> user meminta pengaturan ulang kata sandi.</small>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-dark fw-bold px-3 rounded-pill" data-bs-toggle="collapse" data-bs-target="#notifDetail">
+                            LIHAT DAFTAR
+                        </button>
                     </div>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-dark fw-bold px-3 rounded-pill" data-bs-toggle="collapse" data-bs-target="#notifDetail">
-                        LIHAT DAFTAR
-                    </button>
-                </div>
-                <div class="collapse w-100 mt-2" id="notifDetail">
-                    <div class="table-responsive bg-light p-2 rounded">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr class="small text-muted">
-                                    <th>USER EMAIL</th>
-                                    <th>WAKTU</th>
-                                    <th class="text-end">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($requests as $req): ?>
-                                    <tr>
-                                        <td class="fw-bold small"><?= htmlspecialchars($req['username_email']) ?></td>
-                                        <td class="small text-muted"><?= date('H:i', strtotime($req['created_at'])) ?></td>
-                                        <td class="text-end">
-                                            <button class="btn btn-link btn-sm text-decoration-none fw-bold p-0 me-2" onclick="prosesResetNotif(null, '<?= $req['username_email'] ?>')">Detail</button>
-                                            <a href="index.php?page=admin_dashboard&action=hapus_notif_reset&id=<?= $req['id'] ?>" class="text-danger small"><i class="bi bi-x-circle"></i></a>
-                                        </td>
+                    <div class="collapse w-100 mt-2" id="notifDetail">
+                        <div class="table-responsive bg-light p-2 rounded">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr class="small text-muted">
+                                        <th>USER EMAIL</th>
+                                        <th>WAKTU</th>
+                                        <th class="text-end">AKSI</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($requests as $req): ?>
+                                        <tr>
+                                            <td class="fw-bold small"><?= htmlspecialchars($req['username_email']) ?></td>
+                                            <td class="small text-muted"><?= date('H:i', strtotime($req['created_at'])) ?></td>
+                                            <td class="text-end">
+                                                <button class="btn btn-link btn-sm text-decoration-none fw-bold p-0 me-2" onclick="prosesResetNotif(null, '<?= $req['username_email'] ?>')">Detail</button>
+                                                <a href="index.php?page=admin_dashboard&action=hapus_notif_reset&id=<?= $req['id'] ?>" class="text-danger small"><i class="bi bi-x-circle"></i></a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -306,7 +308,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                 </div>
                 <div>
                     <small class="text-muted fw-bold d-block">TOTAL USER</small>
-                    <h3 class="fw-800 mb-0"><?= count($users) ?></h3>
+                    <h3 class="fw-800 mb-0" id="stat-total-users"><?= count($users) ?></h3>
                 </div>
             </div>
             <div class="card-stat shadow-sm" onclick="window.location.href='index.php?page=admin_dashboard&action=all_activities'" style="cursor:pointer">
@@ -315,7 +317,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                 </div>
                 <div>
                     <small class="text-muted fw-bold d-block">TOTAL AKTIVITAS</small>
-                    <h3 class="fw-800 mb-0"><?= $totalAktivitasSistem ?></h3>
+                    <h3 class="fw-800 mb-0" id="stat-total-activities"><?= $totalAktivitasSistem ?></h3>
                 </div>
             </div>
             <div class="card-stat shadow-sm">
@@ -347,7 +349,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="user-table-body">
                         <?php foreach ($users as $user): ?>
                             <tr>
                                 <td>
@@ -620,6 +622,43 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
                     });
             }
         }
+
+        function updateRealtimeData() {
+            fetch('index.php?page=admin_dashboard&action=get_json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('stat-total-users').innerText = data.users.length;
+                    document.getElementById('stat-total-activities').innerText = data.totalAktivitas;
+
+                    let tableHtml = '';
+                    data.users.forEach(user => {
+                        const isOnline = (new Date().getTime() / 1000) - new Date(user.last_activity).getTime() / 1000 < 60;
+
+                        tableHtml += `
+                    <tr>
+                        <td>... susun kembali HTML kolom User Info sesuai desain ...</td>
+                        <td>${user.email}</td>
+                        <td>... Badge Role ...</td>
+                        <td>
+                            ${isOnline ? 
+                                '<span class="status-pill online"><div class="dot dot-pulse"></div> ONLINE</span>' : 
+                                '<span class="status-pill offline"><div class="dot"></div> OFFLINE</span>'}
+                        </td>
+                        <td class="text-center">... Tombol Aksi ...</td>
+                    </tr>`;
+                    });
+                    document.getElementById('user-table-body').innerHTML = tableHtml;
+
+                    const notifWrapper = document.getElementById('notif-wrapper');
+                    if (data.requests.length > 0) {
+                        notifWrapper.innerHTML = `... susun kembali HTML notif-compact Anda ...`;
+                    } else {
+                        notifWrapper.innerHTML = '';
+                    }
+                });
+        }
+
+        setInterval(updateRealtimeData, 5000);
     </script>
 </body>
 

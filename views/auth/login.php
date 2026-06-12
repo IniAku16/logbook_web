@@ -274,11 +274,11 @@ $frontController = preg_replace('#/views/auth/.*$#', '/public/index.php', $_SERV
             <div class="card" style="width:380px; padding:30px;">
                 <div class="brand-text">Bantuan Akses</div>
                 <div class="title" style="font-size:20px; margin-bottom:15px;">Lupa Password?</div>
-                <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Masukkan Username atau Email Anda. Admin akan mereset password Anda.</p>
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Masukkan Email Anda. Admin akan mereset password Anda.</p>
 
                 <form id="formForgotRequest">
                     <div class="input-group">
-                        <label>Username / Email</label>
+                        <label>Email</label>
                         <input type="text" id="req_input" placeholder="Masukkan detail akun" required>
                     </div>
                     <button type="button" id="btnSubmitReset" onclick="sendRequestToDB()">KIRIM PERMINTAAN</button>
